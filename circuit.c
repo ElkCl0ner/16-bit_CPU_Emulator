@@ -46,7 +46,7 @@ int XNOR(int a, int b)
 }
 
 // Allocate circuit
-Circuit createCircuit(int gateCount, int subCircuitCount)
+Circuit *createCircuit(int gateCount, int subCircuitCount)
 {
   if (gateCount + subCircuitCount == 0)
   {
@@ -54,14 +54,20 @@ Circuit createCircuit(int gateCount, int subCircuitCount)
     exit(1);
   }
 
-  Circuit circuit;
-  circuit.gateCount = gateCount;
-  circuit.subCircuitCount = subCircuitCount;
+  Circuit *circuit = (Circuit *)malloc(sizeof(Circuit));
+  if (circuit == NULL)
+  {
+    perror("Malloc failed. Terminating.");
+    exit(1);
+  }
+
+  circuit->gateCount = gateCount;
+  circuit->subCircuitCount = subCircuitCount;
 
   if (gateCount > 0)
   {
-    circuit.gates = (Gate *)malloc(gateCount * sizeof(Gate));
-    if (circuit.gates == NULL)
+    circuit->gates = (Gate *)malloc(gateCount * sizeof(Gate));
+    if (circuit->gates == NULL)
     {
       perror("Malloc failed. Terminating.");
       exit(1);
@@ -70,8 +76,8 @@ Circuit createCircuit(int gateCount, int subCircuitCount)
   
   if (subCircuitCount > 0)
   {
-    circuit.subCircuits = (Circuit **)malloc(subCircuitCount * sizeof(Circuit *));
-    if (circuit.subCircuits == NULL)
+    circuit->subCircuits = (Circuit **)malloc(subCircuitCount * sizeof(Circuit *));
+    if (circuit->subCircuits == NULL)
     {
       perror("Malloc failed. Terminating.");
       exit(1);
@@ -82,12 +88,12 @@ Circuit createCircuit(int gateCount, int subCircuitCount)
 }
 
 // Set a gate in the circuit
-void setGate(Circuit circuit, int index, int (*gateFunction)(int, int), int *input1, int *input2, int *output)
+void setGate(Circuit *circuit, int index, int (*gateFunction)(int, int), int *input1, int *input2, int *output)
 {
-  circuit.gates[index].gateFunction = gateFunction;
-  circuit.gates[index].input1 = input1;
-  circuit.gates[index].input2 = input2;
-  circuit.gates[index].output = output;
+  circuit->gates[index].gateFunction = gateFunction;
+  circuit->gates[index].input1 = input1;
+  circuit->gates[index].input2 = input2;
+  circuit->gates[index].output = output;
 }
 
 // Simulate the circuit
@@ -109,6 +115,7 @@ void freeCircuit(Circuit *circuit) {
     freeCircuit(circuit->subCircuits[i]);
   }
   free(circuit->gates);
-  free(circuit->values);
+  if (circuit->values != NULL)
+    free(circuit->values);
   free(circuit->subCircuits);
 }

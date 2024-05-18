@@ -26,8 +26,8 @@ int NOR(int a, int b);
 int XOR(int a, int b);
 int XNOR(int a, int b);
 
-Circuit createCircuit(int gateCount, int subCircuitCount);
-void setGate(Circuit circuit, int index, int (*gateFunction)(int, int), int *input1, int *input2, int *output);
+Circuit *createCircuit(int gateCount, int subCircuitCount);
+void setGate(Circuit *circuit, int index, int (*gateFunction)(int, int), int *input1, int *input2, int *output);
 void simulateCircuit(Circuit *circuit);
 void freeCircuit(Circuit *circuit);
 
