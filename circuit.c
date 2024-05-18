@@ -46,16 +46,36 @@ int XNOR(int a, int b)
 }
 
 // Allocate circuit
-Circuit createCircuit(int gateCount)
+Circuit createCircuit(int gateCount, int subCircuitCount)
 {
+  if (gateCount + subCircuitCount == 0)
+  {
+    fprintf(stderr, "Tried to create an empty circuit. Terminating.");
+    exit(1);
+  }
+
   Circuit circuit;
   circuit.gateCount = gateCount;
+  circuit.subCircuitCount = subCircuitCount;
 
-  circuit.gates = (Gate *)malloc(gateCount * sizeof(Gate));
-  if (circuit.gates == NULL)
+  if (gateCount > 0)
   {
-    perror("Malloc failed. Terminating.");
-    exit(1);
+    circuit.gates = (Gate *)malloc(gateCount * sizeof(Gate));
+    if (circuit.gates == NULL)
+    {
+      perror("Malloc failed. Terminating.");
+      exit(1);
+    }
+  }
+  
+  if (subCircuitCount > 0)
+  {
+    circuit.subCircuits = (Circuit **)malloc(subCircuitCount * sizeof(Circuit *));
+    if (circuit.subCircuits == NULL)
+    {
+      perror("Malloc failed. Terminating.");
+      exit(1);
+    }
   }
 
   return circuit;
@@ -73,9 +93,22 @@ void setGate(Circuit circuit, int index, int (*gateFunction)(int, int), int *inp
 // Simulate the circuit
 void simulateCircuit(Circuit *circuit)
 {
+  for (int i = 0; i < circuit->subCircuitCount; i++) {
+    simulateCircuit(circuit->subCircuits[i]);
+  }
   for (int i = 0; i < circuit->gateCount; i++)
   {
     Gate *gate = &circuit->gates[i];
     *gate->output = gate->gateFunction(*gate->input1, *gate->input2);
   }
+}
+
+// Free the memory allocated for the circuit
+void freeCircuit(Circuit *circuit) {
+  for (int i = 0; i < circuit->subCircuitCount; i++) {
+    freeCircuit(circuit->subCircuits[i]);
+  }
+  free(circuit->gates);
+  free(circuit->values);
+  free(circuit->subCircuits);
 }
