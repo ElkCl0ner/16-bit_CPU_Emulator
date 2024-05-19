@@ -60,7 +60,8 @@ int main(int argc, char *argv[])
   printWord(n3);
   */
 
-
+  // int n1[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0}; // overflow test
+  // int n2[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
   Circuit *sub = subtractor(n1, n2, n3, &overflow);
 
   simulateCircuit(sub);
@@ -69,7 +70,7 @@ int main(int argc, char *argv[])
   printWord(n1);
   printf("-");
   printWord(n2);
-  printf("=\n");
+  printf("=\n ");
   printWord(n3);
   printf("overflow=%d\n", overflow);
 

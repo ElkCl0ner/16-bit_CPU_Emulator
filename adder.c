@@ -1,5 +1,6 @@
 #include "adder.h"
 #include "globals.h"
+#include "half_adder.h"
 #include "full_adder.h"
 
 /**
@@ -13,7 +14,7 @@ Circuit *adder(int *input1, int *input2, int *output, int *overflow)
 {
   Circuit *c = createCircuit(0, 16);
 
-  c->subCircuits[0] = full_adder(input1, input2, &zero, output, output+1);
+  c->subCircuits[0] = half_adder(input1, input2, output, output+1);
   for (int i = 1; i < 15; i++)
   {
     c->subCircuits[i] = full_adder(input1+i, input2+i, output+i, output+i, output+i+1);

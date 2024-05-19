@@ -15,17 +15,23 @@
 */
 Circuit *subtractor(int *input1, int *input2, int *output, int *overflow)
 {
-  Circuit *circuit = createCircuit(0, 2);
+  Circuit *c = createCircuit(3, 2);
 
-  circuit->values = (int *)malloc(16 * sizeof(int));
-  if (circuit->values == NULL)
+  // Subtractor circuit
+  c->values = (int *)malloc(18 * sizeof(int));
+  if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");
     exit(1);
   }
 
-  circuit->subCircuits[0] = twos_complement(input2, circuit->values);
-  circuit->subCircuits[1] = adder(input1, circuit->values, output, overflow);
+  c->subCircuits[0] = twos_complement(input2, c->values);
+  c->subCircuits[1] = adder(input1, c->values, output, &trash);
 
-  return circuit;
+  // Overflow detection circuit
+  setGate(c, 0, XOR, input1+15, input2+15, c->values+16);     // can this operation overflow?
+  setGate(c, 1, AND, input2+15, output+15, c->values+17);     // has it overflown?
+  setGate(c, 2, AND, c->values+16, c->values+17, overflow);   // combine to get overflow
+
+  return c;
 }
