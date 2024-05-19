@@ -2,11 +2,14 @@
 #define GLOBALS_H
 
 extern int trash;
+extern int trashes[16];
 
 extern int zero;
-extern int one;
+extern int zeros[16];
 
-extern int zeros[8];
-extern int ones[8];
+extern int one;
+extern int ones[16];
+
+extern int const_1[16];
 
 #endif

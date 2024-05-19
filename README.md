@@ -40,5 +40,3 @@ DEC*: maybe only allow DEC by 1
 |          |             | NOT Rdst Rdst   |
 | NOR      | Bitwise NOR | OR Rdst RA RB   |
 |          |             | NOT Rdst Rdst   |
-
-CMP Compare SUB Rtrsh RA RB

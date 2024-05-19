@@ -1,8 +1,9 @@
 {
-    "files.associations": {
-        "globals.h": "c",
-        "twos.h": "c",
-        "stdlib.h": "c",
-        "eight_bit_adder.h": "c"
-    }
+  "files.associations": {
+    "globals.h": "c",
+    "twos.h": "c",
+    "stdlib.h": "c",
+    "eight_bit_adder.h": "c",
+    "subtractor.h": "c"
+  }
 }

@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *full_adder(int *A, int *B, int *C_in, int *sum, int *C_out);
+Circuit *full_adder(int *input1, int *input2, int *C_in, int *sum, int *C_out);
 
 #endif

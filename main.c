@@ -1,12 +1,21 @@
 #include "globals.h"
 #include "circuit.h"
 #include "full_adder.h"
-#include "eight_bit_adder.h"
+#include "adder.h"
 #include "twos_complement.h"
 #include "subtractor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+
+void printWord(int *word)
+{
+  for (int i = 15; i >= 0; i--)
+  {
+    printf("%d", word[i]);
+  }
+  printf("\n");
+}
 
 int main(int argc, char *argv[])
 {
@@ -24,79 +33,45 @@ int main(int argc, char *argv[])
   printf("%d%d%d\n", n3[2], n3[1], n3[0]);
   */
 
+  int n1[] = {1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0};
+  int n2[] = {1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0};
+  int n3[16], overflow;
+
   /*
-  int n1[] = {1,0,0,1,1,0,0,1};
-  int n2[] = {1,1,0,0,1,0,0,1};
-  int n3[8], overflow;
-  Circuit *add = eight_bit_adder(n1, n2, n3, &overflow);
+  Circuit *add = adder(n1, n2, n3, &overflow);
 
   simulateCircuit(add);
 
   printf(" ");
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n1[i]);
-  }
-  printf(" +\n ");
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n2[i]);
-  }
-  printf(" =\n%d", overflow);
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n3[i]);
-  }
-  printf("\n");
+  printWord(n1);
+  printf("+");
+  printWord(n2);
+  printf("=\n%d", overflow);
+  printWord(n3);
   */
-  /*
-  int n1[] = {1,0,0,1,1,0,0,1};
-  int n2[8];
 
-  Circuit *twos = twos_complement(n1, n2);
+  /*
+  Circuit *twos = twos_complement(n1, n3);
 
   simulateCircuit(twos);
 
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n1[i]);
-  }
-  printf(" ->\n");
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n2[i]);
-  }
-  printf("\n");
+  printWord(n1);
+  printf("2s->\n");
+  printWord(n3);
   */
 
-  // int n1[] = {1,0,0,1,1,0,0,1};
-  // int n2[] = {1,1,0,0,1,0,0,1};
-  int n1[8] = {1, 0, 1, 0, 1, 0, 1, 0}; // 01010101
-  int n2[8] = {0, 1, 0, 1, 0, 1, 0, 0}; // 00101010
-  int n3[8];
 
-  Circuit *sub = subtractor(n1, n2, n3);
+  Circuit *sub = subtractor(n1, n2, n3, &overflow);
 
   simulateCircuit(sub);
 
   printf(" ");
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n1[i]);
-  }
-  printf(" -\n ");
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n2[i]);
-  }
-  // printf(" =\n%d", overflow);
-  printf(" =\n ");
-  for (int i = 7; i >= 0; i--)
-  {
-    printf("%d", n3[i]);
-  }
-  printf("\n");
-
+  printWord(n1);
+  printf("-");
+  printWord(n2);
+  printf("=\n");
+  printWord(n3);
+  printf("overflow=%d\n", overflow);
 
   return 0;
 }

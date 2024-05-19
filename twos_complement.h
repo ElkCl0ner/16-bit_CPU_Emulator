@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *twos_complement(int *n1, int *n2);
+Circuit *twos_complement(int *input, int *output);
 
 #endif
