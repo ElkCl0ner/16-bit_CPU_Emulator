@@ -102,6 +102,8 @@ void simulateCircuit(Circuit *circuit)
   for (int i = 0; i < circuit->subCircuitCount; i++) {
     simulateCircuit(circuit->subCircuits[i]);
   }
+  
+  // Did not enter simulation
   for (int i = 0; i < circuit->gateCount; i++)
   {
     Gate *gate = &circuit->gates[i];

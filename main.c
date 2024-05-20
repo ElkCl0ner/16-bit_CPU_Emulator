@@ -4,6 +4,7 @@
 #include "adder.h"
 #include "twos_complement.h"
 #include "subtractor.h"
+#include "decoder.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -60,6 +61,7 @@ int main(int argc, char *argv[])
   printWord(n3);
   */
 
+  /*
   // int n1[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0}; // overflow test
   // int n2[] = {1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1};
   Circuit *sub = subtractor(n1, n2, n3, &overflow);
@@ -73,6 +75,25 @@ int main(int argc, char *argv[])
   printf("=\n ");
   printWord(n3);
   printf("overflow=%d\n", overflow);
+  */
+  
+
+  int dec_in[4] = {1,0,1,1};
+  int dec_out[16];
+  Circuit *dec = decoder(dec_in, dec_out);
+
+  simulateCircuit(dec);
+
+  for(int i = 3; i >= 0; i--)
+  {
+    printf("%d", dec_in[i]);
+  }
+  printf("\ndec->");
+  for(int i = 15; i >= 0; i--)
+  {
+    printf("%d", dec_out[i]);
+  }
+  printf("\n");
 
   return 0;
 }
