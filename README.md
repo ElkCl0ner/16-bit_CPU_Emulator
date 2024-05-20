@@ -40,3 +40,7 @@ DEC*: maybe only allow DEC by 1
 |          |             | NOT Rdst Rdst   |
 | NOR      | Bitwise NOR | OR Rdst RA RB   |
 |          |             | NOT Rdst Rdst   |
+
+# TODO
+
+- [ ] Consider bit orders (is `{LSB, ..., MSB}` good? should it be different for different circuits?)
