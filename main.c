@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 void printWord(char *word)
 {
@@ -40,6 +41,8 @@ int main(int argc, char *argv[])
   char n1[16] = {1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
   char n2[16] = {1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
   char n3[16], overflow;
+  clock_t start, end;
+  start = clock();
 
   printf("adder\n");
   Circuit *add = adder(n1, n2, n3, &overflow);
@@ -133,8 +136,10 @@ int main(int argc, char *argv[])
     printf("mul\n");
   if (control_nand)
     printf("nand\n");
-
   printWord(n3);
+
+  end = clock();
+  printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);
 
   return 0;
 }
