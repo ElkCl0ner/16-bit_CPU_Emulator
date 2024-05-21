@@ -6,7 +6,7 @@
  * @param input2 (int *)
  * @param sum (int *)
  * @param C_out (int *)
-*/
+ */
 Circuit *half_adder(int *input1, int *input2, int *sum, int *C_out)
 {
   Circuit *c = createCircuit(2, 0);

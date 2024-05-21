@@ -73,7 +73,7 @@ Circuit *createCircuit(int gateCount, int subCircuitCount)
       exit(1);
     }
   }
-  
+
   if (subCircuitCount > 0)
   {
     circuit->subCircuits = (Circuit **)malloc(subCircuitCount * sizeof(Circuit *));
@@ -99,10 +99,11 @@ void setGate(Circuit *circuit, int index, int (*gateFunction)(int, int), int *in
 // Simulate the circuit
 void simulateCircuit(Circuit *circuit)
 {
-  for (int i = 0; i < circuit->subCircuitCount; i++) {
+  for (int i = 0; i < circuit->subCircuitCount; i++)
+  {
     simulateCircuit(circuit->subCircuits[i]);
   }
-  
+
   // Did not enter simulation
   for (int i = 0; i < circuit->gateCount; i++)
   {
@@ -112,8 +113,10 @@ void simulateCircuit(Circuit *circuit)
 }
 
 // Free the memory allocated for the circuit
-void freeCircuit(Circuit *circuit) {
-  for (int i = 0; i < circuit->subCircuitCount; i++) {
+void freeCircuit(Circuit *circuit)
+{
+  for (int i = 0; i < circuit->subCircuitCount; i++)
+  {
     freeCircuit(circuit->subCircuits[i]);
   }
   free(circuit->gates);

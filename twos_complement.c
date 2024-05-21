@@ -9,7 +9,7 @@
  * Creates a 16-bit two's complement circuit
  * @param input (int[16] *) input
  * @param output (int[16] *) output
-*/
+ */
 Circuit *twos_complement(int *input, int *output)
 {
   Circuit *c = createCircuit(0, 2);
@@ -23,9 +23,9 @@ Circuit *twos_complement(int *input, int *output)
 
   // One's complement circuit
   c->subCircuits[0] = createCircuit(16, 0);
-  for(int i = 0; i < 16; i++)
+  for (int i = 0; i < 16; i++)
   {
-    setGate(c->subCircuits[0], i, NOT, input+i, input+1, c->values+i);
+    setGate(c->subCircuits[0], i, NOT, input + i, input + 1, c->values + i);
   }
 
   // Add 1

@@ -9,12 +9,12 @@
  * @param C_in (int *) carry in
  * @param sum (int *) sum
  * @param C_out (int *) carry out
-*/
+ */
 Circuit *full_adder(int *input1, int *input2, int *C_in, int *sum, int *C_out)
 {
   Circuit *c = createCircuit(5, 0);
 
-  c->values = (int*) malloc(3*sizeof(int));
+  c->values = (int *)malloc(3 * sizeof(int));
 
   setGate(c, 0, XOR, input1, input2, &c->values[0]);
   setGate(c, 1, AND, input1, input2, &c->values[2]);
