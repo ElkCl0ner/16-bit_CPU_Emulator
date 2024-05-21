@@ -17,7 +17,7 @@ Circuit *multiplier(int *input1, int *input2, int *output, int *overflow)
   Circuit *c = createCircuit(16, 16);
 
   // AND matrix
-  c->subCircuits[0] = createCircuit(256, 0); // 16*16=256
+  c->subCircuits[0] = createCircuit(256, 0); // 16*16 = 256
 
   c->values = (int *)malloc(256 * sizeof(int));
   if (c->values == NULL)
@@ -38,9 +38,9 @@ Circuit *multiplier(int *input1, int *input2, int *output, int *overflow)
   // 15 x 16-bit adders
   c->subCircuits[1] = createCircuit(0, 16);
   c->subCircuits[1]->subCircuits[0] = half_adder(c->values + 1, c->values + 16, output + 1, c->values + 16);
-  for (int i = 1; i < 15; i++) // input1 = 1 level up, input2 = same level, C_in = prev c_out, sum -> 1 level up (aka idem input1), C-out -> same level (aka idem input2)
+  for (int i = 1; i < 15; i++) // input1 = 1 level up, input2 = same level, C_in = prev c_out, sum -> same level (aka idem input2), C-out -> next sum (aka same level or sum+1)
   {
-    c->subCircuits[1]->subCircuits[i] = full_adder(c->values + 1 + i, c->values + 16 + i, c->values + 16 + i - 1, c->values + 1 + i, c->values + 16 + i);
+    c->subCircuits[1]->subCircuits[i] = full_adder(c->values + 1 + i, c->values + 16 + i, c->values + 16 + i - 1, c->values + 16 + i - 1, c->values + 16 + i);
   }
   c->subCircuits[1]->subCircuits[15] = half_adder(c->values + 16 + 14, c->values + 16 + 15, c->values + 16 + 14, c->values + 16 + 15);
 
@@ -50,7 +50,7 @@ Circuit *multiplier(int *input1, int *input2, int *output, int *overflow)
     c->subCircuits[i + 1]->subCircuits[0] = half_adder(c->values + i * 16, c->values + (i + 1) * 16, output + 1 + i, c->values + (i + 1) * 16);
     for (int j = 1; j < 16; j++)
     {
-      c->subCircuits[i + 1]->subCircuits[j] = full_adder(c->values + i * 16 + j, c->values + (i + 1) * 16 + j, c->values + (i + 1) * 16 + j - 1, c->values + i * 16 + j, c->values + (i + 1) * 16 + j);
+      c->subCircuits[i + 1]->subCircuits[j] = full_adder(c->values + i * 16 + j, c->values + (i + 1) * 16 + j, c->values + (i + 1) * 16 + j - 1, c->values + (i + 1) * 16 + j - 1, c->values + (i + 1) * 16 + j);
     }
   }
 

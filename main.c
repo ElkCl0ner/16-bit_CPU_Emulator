@@ -97,16 +97,20 @@ int main(int argc, char *argv[])
   printf("\n");
   */
 
+  int mul_in1[16] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // negative mutiplication test
+  int mul_in2[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   int mul_out[32];
   int mul_overflow;
-  Circuit *mul = multiplier(n1, n2, mul_out, &mul_overflow);
+  Circuit *mul = multiplier(mul_in1, mul_in2, mul_out, &mul_overflow);
 
   simulateCircuit(mul);
 
   printf("                ");
-  printWord(n1);
+  // printWord(n1);
+  printWord(mul_in1);
   printf("               *");
-  printWord(n2);
+  // printWord(n2);
+  printWord(mul_in2);
   printf("=\n");
   for (int i = 31; i >= 0; i--)
   {
