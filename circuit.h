@@ -3,31 +3,31 @@
 
 typedef struct Gate
 {
-  int (*gateFunction)(int, int); // Pointer to the gate function
-  int *input1;                   // Pointer to the first input
-  int *input2;                   // Pointer to the second input
-  int *output;                   // Pointer to the output
+  char (*gateFunction)(char, char); // Pointer to the gate function
+  char *input1;                     // Pointer to the first input
+  char *input2;                     // Pointer to the second input
+  char *output;                     // Pointer to the output
 } Gate;
 
 typedef struct Circuit
 {
   Gate *gates;
   int gateCount;
-  int *values;                  // Array to hold intermediate values
+  char *values;                 // Array to hold intermediate values
   struct Circuit **subCircuits; // Array of pointers to subCircuits
   int subCircuitCount;          // Number of subCircuits
 } Circuit;
 
-int AND(int a, int b);
-int OR(int a, int b);
-int NOT(int a, int b);
-int NAND(int a, int b);
-int NOR(int a, int b);
-int XOR(int a, int b);
-int XNOR(int a, int b);
+char AND(char a, char b);
+char OR(char a, char b);
+char NOT(char a, char b);
+char NAND(char a, char b);
+char NOR(char a, char b);
+char XOR(char a, char b);
+char XNOR(char a, char b);
 
 Circuit *createCircuit(int gateCount, int subCircuitCount);
-void setGate(Circuit *circuit, int index, int (*gateFunction)(int, int), int *input1, int *input2, int *output);
+void setGate(Circuit *circuit, int index, char (*gateFunction)(char, char), char *input1, char *input2, char *output);
 void simulateCircuit(Circuit *circuit);
 void freeCircuit(Circuit *circuit);
 

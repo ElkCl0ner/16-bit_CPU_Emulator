@@ -8,18 +8,18 @@
 
 /**
  * Creates a 16x16-bit multiplier circuit with a 32-bit output
- * @param input1 (int[16] *)
- * @param input2 (int[16] *)
- * @param output (int[32] *)
+ * @param input1 (char[16] *)
+ * @param input2 (char[16] *)
+ * @param output (char[32] *)
  */
-Circuit *multiplier(int *input1, int *input2, int *output)
+Circuit *multiplier(char *input1, char *input2, char *output)
 {
   Circuit *c = createCircuit(16, 16);
 
   // AND matrix
   c->subCircuits[0] = createCircuit(256, 0); // 16*16 = 256
 
-  c->values = (int *)malloc(256 * sizeof(int));
+  c->values = (char *)malloc(256 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");

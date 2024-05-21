@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *decoder(int *input, int *output);
+Circuit *decoder(char *input, char *output);
 
 #endif

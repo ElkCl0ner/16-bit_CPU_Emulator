@@ -4,43 +4,43 @@
 #include <stdlib.h>
 
 // AND Gate
-int AND(int a, int b)
+char AND(char a, char b)
 {
   return a && b;
 }
 
 // OR Gate
-int OR(int a, int b)
+char OR(char a, char b)
 {
   return a || b;
 }
 
 // NOT Gate
-int NOT(int a, int b)
+char NOT(char a, char b)
 {
   return !a;
 }
 
 // NAND Gate
-int NAND(int a, int b)
+char NAND(char a, char b)
 {
   return !(a && b);
 }
 
 // NOR Gate
-int NOR(int a, int b)
+char NOR(char a, char b)
 {
   return !(a || b);
 }
 
 // XOR Gate
-int XOR(int a, int b)
+char XOR(char a, char b)
 {
   return a ^ b;
 }
 
 // XNOR Gate
-int XNOR(int a, int b)
+char XNOR(char a, char b)
 {
   return !(a ^ b);
 }
@@ -88,7 +88,7 @@ Circuit *createCircuit(int gateCount, int subCircuitCount)
 }
 
 // Set a gate in the circuit
-void setGate(Circuit *circuit, int index, int (*gateFunction)(int, int), int *input1, int *input2, int *output)
+void setGate(Circuit *circuit, int index, char (*gateFunction)(char, char), char *input1, char *input2, char *output)
 {
   circuit->gates[index].gateFunction = gateFunction;
   circuit->gates[index].input1 = input1;
@@ -104,7 +104,6 @@ void simulateCircuit(Circuit *circuit)
     simulateCircuit(circuit->subCircuits[i]);
   }
 
-  // Did not enter simulation
   for (int i = 0; i < circuit->gateCount; i++)
   {
     Gate *gate = &circuit->gates[i];

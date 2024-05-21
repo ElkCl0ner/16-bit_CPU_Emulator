@@ -2,11 +2,11 @@
 
 /**
  * Creates a 16-bit bitwise NAND gate array
- * @param input1 (int[16] *)
- * @param input2 (int[16] *)
- * @param output (int[16] *)
+ * @param input1 (char[16] *)
+ * @param input2 (char[16] *)
+ * @param output (char[16] *)
  */
-Circuit *bitwise_nand(int *input1, int *input2, int *output)
+Circuit *bitwise_nand(char *input1, char *input2, char *output)
 {
   Circuit *c = createCircuit(16, 0);
 
