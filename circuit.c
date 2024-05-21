@@ -118,8 +118,10 @@ void freeCircuit(Circuit *circuit)
   {
     freeCircuit(circuit->subCircuits[i]);
   }
-  free(circuit->gates);
+  if (circuit->gateCount > 0)
+    free(circuit->gates);
   if (circuit->values != NULL)
     free(circuit->values);
-  free(circuit->subCircuits);
+  if (circuit->subCircuitCount > 0)
+    free(circuit->subCircuits);
 }
