@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *multiplier(int *input1, int *input2, int *output);
+Circuit *multiplier(char *input1, char *input2, char *output);
 
 #endif

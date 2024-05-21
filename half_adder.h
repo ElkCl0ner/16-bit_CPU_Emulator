@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *half_adder(int *input1, int *input2, int *sum, int *C_out);
+Circuit *half_adder(char *input1, char *input2, char *sum, char *C_out);
 
 #endif

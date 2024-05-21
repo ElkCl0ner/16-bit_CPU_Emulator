@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *bitwise_nand(int *input1, int *input2, int *output);
+Circuit *bitwise_nand(char *input1, char *input2, char *output);
 
 #endif

@@ -8,17 +8,17 @@
 
 /**
  * Creates a 16-bit subtraction circuit
- * @param input1 (int[16] *)
- * @param input2 (int[16] *)
- * @param output (int[16] *)
- * @param overflow (int *)
+ * @param input1 (char[16] *)
+ * @param input2 (char[16] *)
+ * @param output (char[16] *)
+ * @param overflow (char *)
  */
-Circuit *subtractor(int *input1, int *input2, int *output, int *overflow)
+Circuit *subtractor(char *input1, char *input2, char *output, char *overflow)
 {
   Circuit *c = createCircuit(3, 2);
 
   // Subtractor circuit
-  c->values = (int *)malloc(18 * sizeof(int));
+  c->values = (char *)malloc(18 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");

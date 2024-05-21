@@ -7,14 +7,14 @@
 
 /**
  * Creates a 16-bit two's complement circuit
- * @param input (int[16] *) input
- * @param output (int[16] *) output
+ * @param input (char[16] *) input
+ * @param output (char[16] *) output
  */
-Circuit *twos_complement(int *input, int *output)
+Circuit *twos_complement(char *input, char *output)
 {
   Circuit *c = createCircuit(0, 2);
 
-  c->values = (int *)malloc(16 * sizeof(int));
+  c->values = (char *)malloc(16 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");

@@ -5,13 +5,13 @@
 
 /**
  * Creates a 4 to 16 bit decoder
- * @param input (int[4] *)
- * @param output (int[16] *)
+ * @param input (char[4] *)
+ * @param output (char[16] *)
  */
-Circuit *decoder(int *input, int *output)
+Circuit *decoder(char *input, char *output)
 {
   Circuit *c = createCircuit(28, 0);
-  c->values = (int *)malloc(12 * sizeof(int)); // 4 + 8
+  c->values = (char *)malloc(12 * sizeof(char)); // 4 + 8
   if (c->values == NULL)
   {
     perror("Malloc Failed. Terminating.");

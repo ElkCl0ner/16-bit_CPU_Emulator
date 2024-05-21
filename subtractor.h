@@ -3,6 +3,6 @@
 
 #include "circuit.h"
 
-Circuit *subtractor(int *input1, int *input2, int *output, int *overflow);
+Circuit *subtractor(char *input1, char *input2, char *output, char *overflow);
 
 #endif

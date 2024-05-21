@@ -5,12 +5,12 @@
 
 /**
  * Creates a 16-bit adder
- * @param input1 (int[16] *) first number
- * @param input2 (int[16] *) second number
- * @param output (int[16] *) result
- * @param overflow (int *) overflow
+ * @param input1 (char[16] *) first number
+ * @param input2 (char[16] *) second number
+ * @param output (char[16] *) result
+ * @param overflow (char *) overflow
  */
-Circuit *adder(int *input1, int *input2, int *output, int *overflow)
+Circuit *adder(char *input1, char *input2, char *output, char *overflow)
 {
   Circuit *c = createCircuit(0, 16);
 
