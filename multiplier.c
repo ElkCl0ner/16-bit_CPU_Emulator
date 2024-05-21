@@ -12,7 +12,7 @@
  * @param input2 (int[16] *)
  * @param output (int[32] *)
  */
-Circuit *multiplier(int *input1, int *input2, int *output, int *overflow)
+Circuit *multiplier(int *input1, int *input2, int *output)
 {
   Circuit *c = createCircuit(16, 16);
 

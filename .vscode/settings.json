@@ -4,6 +4,7 @@
     "twos.h": "c",
     "stdlib.h": "c",
     "eight_bit_adder.h": "c",
-    "subtractor.h": "c"
+    "subtractor.h": "c",
+    "multiplier.h": "c"
   }
 }
