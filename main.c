@@ -4,6 +4,7 @@
 #include "adder.h"
 #include "twos_complement.h"
 #include "subtractor.h"
+#include "multiplier.h"
 #include "decoder.h"
 
 #include <stdio.h>
@@ -34,8 +35,8 @@ int main(int argc, char *argv[])
   printf("%d%d%d\n", n3[2], n3[1], n3[0]);
   */
 
-  int n1[] = {1,0,0,1,1,0,0,1,0,0,0,0,0,0,0,0};
-  int n2[] = {1,1,0,0,1,0,0,1,0,0,0,0,0,0,0,0};
+  int n1[] = {1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+  int n2[] = {1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
   int n3[16], overflow;
 
   /*
@@ -76,22 +77,40 @@ int main(int argc, char *argv[])
   printWord(n3);
   printf("overflow=%d\n", overflow);
   */
-  
 
-  int dec_in[4] = {1,0,1,1};
+  /*
+  int dec_in[4] = {1, 0, 1, 1};
   int dec_out[16];
   Circuit *dec = decoder(dec_in, dec_out);
 
   simulateCircuit(dec);
 
-  for(int i = 3; i >= 0; i--)
+  for (int i = 3; i >= 0; i--)
   {
     printf("%d", dec_in[i]);
   }
   printf("\ndec->");
-  for(int i = 15; i >= 0; i--)
+  for (int i = 15; i >= 0; i--)
   {
     printf("%d", dec_out[i]);
+  }
+  printf("\n");
+  */
+
+  int mul_out[32];
+  int mul_overflow;
+  Circuit *mul = multiplier(n1, n2, mul_out, &mul_overflow);
+
+  simulateCircuit(mul);
+
+  printf("                ");
+  printWord(n1);
+  printf("               *");
+  printWord(n2);
+  printf("=\n");
+  for (int i = 31; i >= 0; i--)
+  {
+    printf("%d", mul_out[i]);
   }
   printf("\n");
 
