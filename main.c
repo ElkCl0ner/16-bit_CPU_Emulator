@@ -5,6 +5,7 @@
 #include "twos_complement.h"
 #include "subtractor.h"
 #include "multiplier.h"
+#include "bitwise_nand.h"
 #include "decoder.h"
 
 #include <stdio.h>
@@ -97,11 +98,13 @@ int main(int argc, char *argv[])
   printf("\n");
   */
 
-  int mul_in1[16] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // negative mutiplication test
-  int mul_in2[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  /*
+  // int mul_in1[16] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // negative mutiplication test
+  // int mul_in2[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
   int mul_out[32];
   int mul_overflow;
-  Circuit *mul = multiplier(mul_in1, mul_in2, mul_out, &mul_overflow);
+  Circuit *mul = multiplier(n1, n2, mul_out, &mul_overflow);
+  // Circuit *mul = multiplier(mul_in1, mul_in2, mul_out, &mul_overflow);
 
   simulateCircuit(mul);
 
@@ -117,6 +120,14 @@ int main(int argc, char *argv[])
     printf("%d", mul_out[i]);
   }
   printf("\n");
+  */
+
+  Circuit *bit_nand = bitwise_nand(n1, n2, n3);
+  simulateCircuit(bit_nand);
+  printWord(n1);
+  printWord(n2);
+  printf("NAND->\n");
+  printWord(n3);
 
   return 0;
 }
