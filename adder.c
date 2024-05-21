@@ -1,5 +1,4 @@
 #include "adder.h"
-#include "globals.h"
 #include "half_adder.h"
 #include "full_adder.h"
 

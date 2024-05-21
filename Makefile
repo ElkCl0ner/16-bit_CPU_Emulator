@@ -1,4 +1,4 @@
-OBJECTS = main.o globals.o circuit.o half_adder.o full_adder.o adder.o twos_complement.o subtractor.o multiplier.o bitwise_nand.o decoder.o
+OBJECTS = main.o globals.o circuit.o half_adder.o full_adder.o adder.o twos_complement.o subtractor.o multiplier.o bitwise_nand.o alu.o decoder.o
 CC = gcc
 CFLAGS = -Wall -g
 APPLICATION = cpu

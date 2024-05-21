@@ -6,6 +6,7 @@
 #include "subtractor.h"
 #include "multiplier.h"
 #include "bitwise_nand.h"
+#include "alu.h"
 #include "decoder.h"
 
 #include <stdio.h>
@@ -112,6 +113,27 @@ int main(int argc, char *argv[])
   printWord(n1);
   printWord(n2);
   printf("NAND->\n");
+  printWord(n3);
+
+  printf("alu\n");
+  char z;
+  char control_add = 1;
+  char control_sub = 0;
+  char control_mul = 0;
+  char control_nand = 0;
+  Circuit *al = alu(n1, n2, n3, &z, &control_add, &control_sub, &control_mul, &control_nand);
+  simulateCircuit(al);
+  printWord(n1);
+  printWord(n2);
+  if (control_add)
+    printf("add\n");
+  if (control_sub)
+    printf("sub\n");
+  if (control_mul)
+    printf("mul\n");
+  if (control_nand)
+    printf("nand\n");
+
   printWord(n3);
 
   return 0;
