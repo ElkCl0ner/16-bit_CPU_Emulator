@@ -22,7 +22,7 @@
  */
 Circuit *alu(char *input1, char *input2, char *output, char *zero, char *add, char *sub, char *mul, char *nand)
 {
-  Circuit *c = createCircuit(112, 4); // 4*16 AND + 3*16 OR
+  Circuit *c = createCircuit(127, 4); // 4*16 AND + 3*16 OR + 15 NOR
 
   c->values = (char *)malloc(80 * sizeof(char)); // 5*16 = 80 we don't care about the last 16 bits but need the memory
   if (c->values == NULL)
@@ -64,6 +64,14 @@ Circuit *alu(char *input1, char *input2, char *output, char *zero, char *add, ch
       setGate(c, 64 + i * 16 + j, OR, output + j, c->values + 16 * (i + 1) + j, output + j);
     }
   }
+
+  // Z flag
+  setGate(c, 112, OR, output, output + 1, zero);
+  for (int i = 1; i < 14; i++)
+  {
+    setGate(c, 112 + i, OR, zero, output + 1 + i, zero);
+  }
+  setGate(c, 126, NOR, zero, output + 15, zero);
 
   return c;
 }
