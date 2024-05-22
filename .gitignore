@@ -1,2 +1,6 @@
+# VScode
+.vscode/
+
+# Compiled Objects
 *.o
 cpu
