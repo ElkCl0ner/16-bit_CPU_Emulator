@@ -8,10 +8,20 @@
 #include "bitwise_nand.h"
 #include "alu.h"
 #include "decoder.h"
+#include "control_unit.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+void printArr(char *arr_ptr, int arr_len)
+{
+  for (int i = arr_len - 1; i >= 0; i--)
+  {
+    printf("%d", arr_ptr[i]);
+  }
+  printf("\n");
+}
 
 void printWord(char *word)
 {
@@ -137,6 +147,72 @@ int main(int argc, char *argv[])
   if (control_nand)
     printf("nand\n");
   printWord(n3);
+
+  printf("control unit\n");
+  char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
+  char cu_Rdst[4];
+  char cu_RA[4];
+  char cu_RB[4];
+  char cu_Addr[4];
+  char cu_Imm[16];
+  char cu_zeroRA;
+  char cu_LSL[16];
+  char cu_useImm;
+  char cu_add;
+  char cu_sub;
+  char cu_mul;
+  char cu_nand;
+  char cu_memLoad;
+  char cu_memStore;
+  char cu_setZ;
+  char cu_link;
+  char cu_storeOutputToRdst;
+  char cu_halt;
+  Circuit *cu = control_unit(
+      cu_instruction,
+      cu_Rdst,
+      cu_RA,
+      cu_RB,
+      cu_Addr,
+      cu_Imm,
+      &cu_zeroRA,
+      cu_LSL,
+      &cu_useImm,
+      &cu_add,
+      &cu_sub,
+      &cu_mul,
+      &cu_nand,
+      &cu_memLoad,
+      &cu_memStore,
+      &cu_setZ,
+      &cu_link,
+      &cu_storeOutputToRdst,
+      &cu_halt);
+  simulateCircuit(cu);
+  printf("Rdst=");
+  printArr(cu_Rdst, 4);
+  printf("RA=");
+  printArr(cu_RA, 4);
+  printf("RB=");
+  printArr(cu_RB, 4);
+  printf("Addr=");
+  printArr(cu_Addr, 4);
+  printf("Imm=");
+  printWord(cu_Imm);
+  printf("zeroRA=%d\n", cu_zeroRA);
+  printf("LSL=");
+  printWord(cu_LSL);
+  printf("useImm=%d\n", cu_useImm);
+  printf("add=%d\n", cu_add);
+  printf("sub=%d\n", cu_sub);
+  printf("mul=%d\n", cu_mul);
+  printf("nand=%d\n", cu_nand);
+  printf("memLoad=%d\n", cu_memLoad);
+  printf("memStore=%d\n", cu_memStore);
+  printf("setZ=%d\n", cu_setZ);
+  printf("link=%d\n", cu_link);
+  printf("storeOutputToRdst=%d\n", cu_storeOutputToRdst);
+  printf("halt=%d\n", cu_halt);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

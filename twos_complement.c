@@ -29,7 +29,7 @@ Circuit *twos_complement(char *input, char *output)
   }
 
   // Add 1
-  c->subCircuits[1] = adder(c->values, const_1, output, &trash);
+  c->subCircuits[1] = adder(c->values, const16_1, output, &trash);
 
   return c;
 }

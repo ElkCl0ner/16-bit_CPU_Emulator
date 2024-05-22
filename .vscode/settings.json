@@ -5,6 +5,8 @@
     "stdlib.h": "c",
     "eight_bit_adder.h": "c",
     "subtractor.h": "c",
-    "multiplier.h": "c"
+    "multiplier.h": "c",
+    "control_unit.h": "c",
+    "stdio.h": "c"
   }
 }
