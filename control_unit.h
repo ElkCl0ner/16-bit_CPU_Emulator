@@ -5,6 +5,7 @@
 
 Circuit *control_unit(
     char *instruction,
+    char *Zin,
     char *Rdst,
     char *RA,
     char *RB,

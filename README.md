@@ -11,38 +11,59 @@ Logic gate level emulation of a 16-bit cpu written in `C`
   - PC
 - Instruction Fetcher
 - Control Unit
-- Register Fetcher
+- Register Reader
+- Z Flag Bit
 - ALU
 - Memory Interface (RAM chips are not emulated, memory is stored in your machine's real memory)
+- Register Writer
+- Z Flag Writter
 
 ```
  REGISTERS
 ###########
-#   R 0   #       ###############       ##########
-#   R 1   #   ┌──># Instruction #──────>#  Main  #
-#   R 2   #   │   #   Fetcher   #<──────# Memory #
-#   R 3   #   │   ###############       ##########
-#   R 4   #   │
-#   R 5   #   │
-#   R 6   #   │
-#   R 7   #   │
-#   R 8   #   │
-#   R 9   #   │
-#   R10   #   │
-#   R11   #   │
-#   R12   #   │
-#   S P   #   │
-#   L R   #   │
-#   P C───#───┘
-###########
-
-
-
-
-
-
-
+#   R 0   #       ################        ############
+#   R 1   #       #              #        #          #
+#   R 2   #   ┌──>#  Instruction #───────>#   Main   #
+#   R 3   #   │   #    Fetcher   #<───────#  Memory  #
+#   R 4   #   │   #              #        #          #
+#   R 5   #   │   ################        ############
+#   R 6   #   │               │
+#   R 7   #   │               │     #############
+#   R 8   #   │               └────>#           #───────────────────────┐
+#   R 9   #   │                     #  Control  #──────────────────────┐│
+#   R10   #   │   ##############    #   Unit    #                      ││
+#   R11   #   │   #            #<───#           #──────┐               ││
+#   R12   #───┼──>#  Register  #    #############      v               ││
+#   S P   #   │   #   Reader   #           │  │      ###############   ││
+#   L R   #   │   #            #           │  │      #             #   ││
+#   P C───#───┘   # RA      RB #─────┬─────│──│──┐   #   Memory    #   ││   ############
+###########       ##############     v     │  │  │   #  Interface  #   ││   #          #
+ ^                  │             #######  │  │  │   #             #───┼┼──>#   Main   #
+ │                  │             # MUX #<─┘  │  └──>#DataIn       #<──┼┼───#  Memory  #
+ │ ########         │             #######     │      #             #   ││   #          #
+ │ #  Z   #         ├────────────────┼────────┼─────>#Addr         #   ││   ############
+ │ # Flag*#         v                v        │      #   DataOut   #   ││
+ │ ########  ##############   ############### │      ###############   ││
+ │   │  │    #     In1     # #      In2     # │             │          ││
+ │   │  └────>#Zin          #              #  │             │          ││
+ │   │         #           ALU     Control#<──┘             │          ││
+ │   │          #  Zout      Output      #                  │          ││
+ │   │          ########################                    │          ││
+ │   │              │           │                           │          ││
+ │   │              │           │                           │          ││
+ │   │  ########### │           │                           │          ││
+ │   └──# Z Flag  #<┘           │                           │          ││
+ │      # Writter #<────────────┼───────────────────────────┼──────────┘│
+ │      ###########             v                           │           │
+ │                      ##############                      │           │
+ │                      #            #<─────────────────────┘           │
+ └──────────────────────#  Register  #                                  │
+                        #  Writter   #                                  │
+                        #            #<─────────────────────────────────┘
+                        ##############
 ```
+
+Z Flag\*: output should go into CU instead of ALU
 
 ## Instruction Set
 

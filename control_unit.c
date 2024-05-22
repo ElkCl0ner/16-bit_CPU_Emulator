@@ -7,7 +7,8 @@
 
 /**
  * Creates a control unit
- * @param instruction (char[16] *) (only input)
+ * @param instruction (char[16] *) (input)
+ * @param Zin (char *) (input) Z flag
  * @param Rdst (char[4] *)
  * @param RA (char[4] *)
  * @param RB (char[4] *)
@@ -29,6 +30,7 @@
  */
 Circuit *control_unit(
     char *instruction,
+    char *Zin,
     char *Rdst,
     char *RA,
     char *RB,
@@ -48,9 +50,9 @@ Circuit *control_unit(
     char *storeOutputToRdst,
     char *halt)
 {
-  Circuit *c = createCircuit(180, 2);
+  Circuit *c = createCircuit(183, 2);
 
-  c->values = (char *)malloc(25 * sizeof(char));
+  c->values = (char *)malloc(26 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");
@@ -210,8 +212,11 @@ Circuit *control_unit(
   // link, gate 55
   setGate(c, 55, OR, c->values + 12, c->values + 13, link);
 
-  // storeOutputToRdst, gate 56
+  // storeOutputToRdst, gates {56} U [180,182], value 25
   setGate(c, 56, NOR, c->values + 6, c->values + 7, storeOutputToRdst);
+  setGate(c, 180, NOT, c->values + 11, c->values + 11, c->values + 25);
+  setGate(c, 181, OR, c->values + 25, Zin, c->values + 25);
+  setGate(c, 182, AND, storeOutputToRdst, c->values + 25, storeOutputToRdst);
 
   // halt, gate 57
   setGate(c, 57, AND, c->values, c->values, halt);

@@ -50,6 +50,8 @@ int main(int argc, char *argv[])
 
   char n1[16] = {1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
   char n2[16] = {1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+  // char n1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // to test ALU zero flag
+  // char n2[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   char n3[16], overflow;
   clock_t start, end;
   start = clock();
@@ -147,9 +149,12 @@ int main(int argc, char *argv[])
   if (control_nand)
     printf("nand\n");
   printWord(n3);
+  printf("zero=%d\n", z);
 
   printf("control unit\n");
-  char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
+  // char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
+  char cu_instruction[16] = {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1}; // BLZ #5
+  char cu_Zin = 0;
   char cu_Rdst[4];
   char cu_RA[4];
   char cu_RB[4];
@@ -170,6 +175,7 @@ int main(int argc, char *argv[])
   char cu_halt;
   Circuit *cu = control_unit(
       cu_instruction,
+      &cu_Zin,
       cu_Rdst,
       cu_RA,
       cu_RB,
