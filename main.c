@@ -12,6 +12,8 @@
 #include "register_writer.h"
 #include "register_reader.h"
 #include "z_flag_writer.h"
+#include "memory.h"
+#include "cpu.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -51,14 +53,14 @@ int main(int argc, char *argv[])
   printf("%d%d%d\n", n3[2], n3[1], n3[0]);
   */
 
-  char n1[16] = {1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
-  char n2[16] = {1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0};
+  char n1[16] = {1, 0, 0, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}; // 153
+  char n2[16] = {1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0}; // 147
   // char n1[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}; // to test ALU zero flag
   // char n2[16] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   char n3[16], overflow;
   clock_t start, end;
   start = clock();
-
+  /*
   printf("adder\n");
   Circuit *add = adder(n1, n2, n3, &overflow);
   simulateCircuit(add);
@@ -270,6 +272,28 @@ int main(int argc, char *argv[])
   printf("z_after=%d\n", z_z);
   printf("alu_zero=%d\n", z_alu_zero);
   printf("cu_setZ=%d\n", z_cu_setZ);
+  */
+
+  /*
+  printf("memory\n");
+  char mem[16];
+  for (int i = 0; i < 16; i++)
+  {
+    mem[i] = i;
+  }
+  char addr[16] = {0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  char d_out[16];
+  char d_in[16] = {1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+  memRead(mem, addr, d_out);
+  printWord(d_out);
+  memWrite(mem, addr, d_in);
+  memRead(mem, addr, d_out);
+  printWord(d_out);
+  */
+
+  Cpu *cpu = createCpu();
+  cpuStart(cpu);
+  printWord(cpu->instruction);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

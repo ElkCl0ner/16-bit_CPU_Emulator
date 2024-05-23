@@ -124,11 +124,12 @@ PC = 0x0000
 | Screen Pixel Buffer | 0xE2B4 | 0x0000 | 22.89% | 22.89% |
 | Screen Control      | 0xE2B2 | 0xE2B4 | 0.003% | 22.89% |
 | Screen Char Buffer  |        | 0xE2B2 | %      |        |
-| Keyboard IO         |        |        |        |
-| Pushbuttons         |        |        |
-| Toggle Switches     |        |        |
-| LEDs                |        |        |
-| 7-Segment Displays  |        |        |
+| Keyboard IO         |        |        |        |        |
+| Pushbuttons         |        |        |        |        |
+| Toggle Switches     |        |        |        |        |
+| LEDs                |        |        |        |        |
+| 7-Segment Displays  |        |        |        |        |
+| Timers              |        |        |        |        |
 
 ### Screen Pixel Buffer
 
