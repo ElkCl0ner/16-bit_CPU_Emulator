@@ -9,6 +9,8 @@
 #include "alu.h"
 #include "decoder.h"
 #include "control_unit.h"
+#include "register_writer.h"
+#include "register_reader.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -219,6 +221,43 @@ int main(int argc, char *argv[])
   printf("link=%d\n", cu_link);
   printf("storeOutputToRdst=%d\n", cu_storeOutputToRdst);
   printf("halt=%d\n", cu_halt);
+
+  printf("register writer\n");
+  char writer_registers[256];
+  for (int i = 0; i < 16; i++)
+  {
+    writer_registers[i * 16] = 0;
+  }
+  char writer_alu_output[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  char writer_Rdst[4] = {0, 0, 0, 0};
+  char writer_storeOutput = 1;
+  Circuit *writer = register_writer(writer_registers, writer_alu_output, writer_Rdst, &writer_storeOutput);
+  simulateCircuit(writer);
+  for (int i = 15; i >= 0; i--)
+  {
+    printf("%d", writer_registers[i * 16]);
+  }
+  printf("\n");
+
+  printf("register reader\n");
+  char reader_registers[256];
+  for (int i = 0; i < 256; i++)
+  {
+    reader_registers[i] = 0;
+  }
+  reader_registers[0] = 1;
+  reader_registers[1] = 1;
+  reader_registers[17] = 1;
+  char reader_RAin[4] = {0, 0, 0, 0};
+  char reader_RBin[4] = {1, 0, 0, 0};
+  char reader_RAout[16];
+  char reader_RBout[16];
+  Circuit *reader = register_reader(reader_registers, reader_RAin, reader_RBin, reader_RAout, reader_RBout);
+  simulateCircuit(reader);
+  printf("RA_out=");
+  printWord(reader_RAout);
+  printf("RB_out=");
+  printWord(reader_RBout);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);
