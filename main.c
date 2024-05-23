@@ -11,6 +11,7 @@
 #include "control_unit.h"
 #include "register_writer.h"
 #include "register_reader.h"
+#include "z_flag_writer.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -258,6 +259,17 @@ int main(int argc, char *argv[])
   printWord(reader_RAout);
   printf("RB_out=");
   printWord(reader_RBout);
+
+  printf("z flag writer\n");
+  char z_z = 1;
+  char z_alu_zero = 0;
+  char z_cu_setZ = 0;
+  Circuit *z_writer = z_flag_writer(&z_z, &z_alu_zero, &z_cu_setZ);
+  printf("z_before=%d\n", z_z);
+  simulateCircuit(z_writer);
+  printf("z_after=%d\n", z_z);
+  printf("alu_zero=%d\n", z_alu_zero);
+  printf("cu_setZ=%d\n", z_cu_setZ);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);
