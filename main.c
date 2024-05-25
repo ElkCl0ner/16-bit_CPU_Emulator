@@ -292,8 +292,21 @@ int main(int argc, char *argv[])
   */
 
   Cpu *cpu = createCpu();
+  for (int i = 0; i<256; i++)
+  {
+    cpu->registers[i] = 0;
+  }
+  cpu->memory[1] = 0b01000001; // MOV1 R1 0b1011
+  cpu->memory[0] = 0b00001011;
+  cpu->memory[2] = 0b00100000; // BL #32 (PC should end up at #? when halted (assuming instruction at addr ? is HLT))
+  cpu->memory[3] = 0b10100000;
+  printAllRegisters(cpu);
   cpuStart(cpu);
-  printWord(cpu->instruction);
+  printAllRegisters(cpu);
+  cpuStart(cpu);
+  printAllRegisters(cpu);
+  cpuStart(cpu);
+  printAllRegisters(cpu);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

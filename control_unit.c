@@ -76,7 +76,7 @@ Circuit *control_unit(
     setGate(c, 62 + i * 5, OR, Rdst + i, c->values + 23, Rdst + i);
   }
 
-  // RA, gates [4,8]
+  // RA, gates [4,8] // BUG: sometimes, RA is set by the opcode
   for (int i = 0; i < 4; i++)
   {
     setGate(c, 4 + i, AND, instruction + 4 + i, instruction + 4 + i, RA + i);

@@ -1,4 +1,6 @@
 #include "cpu.h"
+#include "globals.h"
+#include "adder.h"
 #include "control_unit.h"
 #include "register_reader.h"
 #include "mux_alu_input2.h"
@@ -18,6 +20,25 @@ Cpu *createCpu()
     perror("Malloc failed. Terminating.");
     exit(1);
   }
+
+  // cpu->PC_incrementor = createCircuit(16, 1); // TODO: consider how to implement this circuit
+  // cpu->PC_incrementor->values = (char *)malloc(32 * sizeof(char));
+  // if (cpu->PC_incrementor->values == NULL)
+  // {
+  //   perror("Malloc failed. Terminating.");
+  //   exit(1);
+  // }
+  // cpu->PC_incrementor->values[0] = 0; // constant 2
+  // cpu->PC_incrementor->values[1] = 1;
+  // for (int i = 2; i < 16; i++)
+  // {
+  //   cpu->PC_incrementor->values[i] = 0;
+  // }
+  // for (int i = 0; i < 16; i++) // get PC into 1 continuous array
+  // {
+  //   cpu->PC_incrementor->values[16+i] = 0;
+  // }
+  // cpu->PC_incrementor->subCircuits[0] = adder();
 
   cpu->cu = control_unit(
       cpu->instruction,
@@ -49,6 +70,7 @@ Cpu *createCpu()
       cpu->RB_val);
 
   // TODO: implement and replace this with the real lsl_module
+  // currently just sends RA_val to alu_input1 without shifting
   cpu->lsl_module = createCircuit(16, 0);
   for (int i = 0; i < 16; i++)
   {
@@ -87,21 +109,102 @@ Cpu *createCpu()
 
 void cpuStart(Cpu *cpu)
 {
-  // Get the value of PC
-  char PC[16];
-  for (int i = 0; i < 16; i++)
+  int max_iterations = 1;
+  while (max_iterations--)
   {
-    PC[i] = cpu->registers[15 + i * 16];
-    printf("%d", PC[i]);
+    // Get the value of PC
+    char PC[16];
+    for (int i = 0; i < 16; i++)
+    {
+      PC[i] = cpu->registers[15 + i * 16];
+      printf("%d", PC[i]);
+    }
+    printf("\n");
+
+    // Fetch instruction
+    memRead(
+        cpu->memory,
+        PC,
+        cpu->instruction);
+    printf("instruction=");
+    for (int i = 15; i >= 0; i--)
+    {
+      printf("%d", cpu->instruction[i]);
+    }
+    printf("\n");
+
+    // Increment PC by 2 // TODO: use real circuit once it is designed
+    int fake_PC = 0;
+    for (int i = 0; i < 16; i++)
+    {
+      fake_PC |= cpu->registers[15 + i * 16] << i;
+    }
+    fake_PC += 2;
+    for (int i = 0; i < 16; i++)
+    {
+      cpu->registers[15+i*16] = (fake_PC >> i) & 0b1;
+    }
+
+    // Decode instruction
+    simulateCircuit(cpu->cu);
+
+    // Check halt
+    if (cpu->halt[0])
+    {
+      printf("Halt\n");
+      return;
+    }
+
+    // Read RA and RB
+    simulateCircuit(cpu->register_reader);
+
+    // LSL RA_val
+    simulateCircuit(cpu->lsl_module);
+
+    // MUX RB_val
+    simulateCircuit(cpu->mux_alu_input2);
+
+    // ALU compute output
+    simulateCircuit(cpu->alu);
+
+    // Memory Interface
+    // TODO
+
+    // Write to Rdst
+    simulateCircuit(cpu->register_writer); // BUG: needs to consider storing data_out of the memory interface if it was a load instruction
+
+    // Write Z flag
+    simulateCircuit(cpu->z_flag_writer);
+  }
+
+}
+
+void printRegister(Cpu *cpu, int index)
+{
+  if (0 <= index && index < 13) // R0-R12
+    printf("R%d =\t", index);
+  else if (index == 13) // SP
+    printf("SP =\t");
+  else if (index == 14) // LR
+    printf("LR =\t");
+  else if (index == 15) // PC
+    printf("PC =\t");
+  else
+  {
+    printf("Invalid register index provided: %d\n", index);
+    return;
+  }
+  for (int i = 15; i>=0; i--)
+  {
+    printf("%d", cpu->registers[index + i * 16]);
   }
   printf("\n");
+}
 
-  // Fetch instruction
-  memRead(
-      cpu->memory,
-      PC,
-      cpu->instruction);
-
-  // Decode instruction
-  simulateCircuit(cpu->cu);
+void printAllRegisters(Cpu *cpu)
+{
+  for (int i = 0; i < 16; i++)
+  {
+    printRegister(cpu, i);
+  }
 }
