@@ -12,6 +12,53 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+/**
+ * Converts a 4-bit register index to a real int
+ * @param register_bits (char[4] *)
+ */
+int convertRegisterIndex(char *register_bits)
+{
+  int index = 0;
+  for (int i = 0; i < 4; i++)
+  {
+    index |= (register_bits[i] << i) & 0b1;
+  }
+  return index;
+}
+
+/**
+ * Write data to a register
+ * @param registers (char[256] *)
+ * @param index (int)
+ * @param data (char[16] *)
+ */
+void writeRegister(char *registers, int index, char *data)
+{
+  if (index < 0 || index >= 16)
+  {
+    printf(stderr, "Invalid register index provided.");
+    return;
+  }
+  for (int i = 0; i < 16; i++)
+  {
+    registers[index + i * 16] = data[i];
+  }
+}
+
+/**
+ * Reads the data in a register
+ * @param registers (char[256] *)
+ * @param index (int)
+ * @param data_out (char[16] *)
+ */
+void readRegister(char *registers, int index, char *data_out)
+{
+  for (int i = 0; i < 16; i++)
+  {
+    data_out[i] = registers[index + i * 16];
+  }
+}
+
 Cpu *createCpu()
 {
   Cpu *cpu = (Cpu *)malloc(sizeof(Cpu));
@@ -114,7 +161,7 @@ void cpuStart(Cpu *cpu)
   {
     // Get the value of PC
     char PC[16];
-    for (int i = 0; i < 16; i++)
+    for (int i = 15; i >= 0; i--)
     {
       PC[i] = cpu->registers[15 + i * 16];
       printf("%d", PC[i]);
@@ -142,7 +189,7 @@ void cpuStart(Cpu *cpu)
     fake_PC += 2;
     for (int i = 0; i < 16; i++)
     {
-      cpu->registers[15+i*16] = (fake_PC >> i) & 0b1;
+      cpu->registers[15 + i * 16] = (fake_PC >> i) & 0b1;
     }
 
     // Decode instruction
@@ -168,7 +215,29 @@ void cpuStart(Cpu *cpu)
     simulateCircuit(cpu->alu);
 
     // Memory Interface
-    // TODO
+    if (cpu->mem_inter_load) // load
+    {
+      memRead(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_out);
+      writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
+    }
+    else if (cpu->mem_inter_store) // store
+    {
+      memWrite(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_in);
+    }
+
+    // Stack operations // TODO: Currently magic, emulate it
+    if (cpu->cu->values + 8) // push
+    {
+      // char SP_data[16];
+      // readRegister(cpu->registers, 13, SP_data);
+      // int SP_addr = convertBitArrayToInt(SP_data);
+      // memWrite(cpu->memory, SP_data, );
+      printf("WIP: PUSH STACK\n");
+    }
+    else if (cpu->cu->values + 9) // pop
+    {
+      printf("WIP: POP STACK\n");
+    }
 
     // Write to Rdst
     simulateCircuit(cpu->register_writer); // BUG: needs to consider storing data_out of the memory interface if it was a load instruction
@@ -176,7 +245,6 @@ void cpuStart(Cpu *cpu)
     // Write Z flag
     simulateCircuit(cpu->z_flag_writer);
   }
-
 }
 
 void printRegister(Cpu *cpu, int index)
@@ -194,7 +262,7 @@ void printRegister(Cpu *cpu, int index)
     printf("Invalid register index provided: %d\n", index);
     return;
   }
-  for (int i = 15; i>=0; i--)
+  for (int i = 15; i >= 0; i--)
   {
     printf("%d", cpu->registers[index + i * 16]);
   }

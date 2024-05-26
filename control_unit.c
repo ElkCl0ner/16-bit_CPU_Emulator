@@ -50,9 +50,9 @@ Circuit *control_unit(
     char *storeOutputToRdst,
     char *halt)
 {
-  Circuit *c = createCircuit(183, 2);
+  Circuit *c = createCircuit(203, 2);
 
-  c->values = (char *)malloc(26 * sizeof(char));
+  c->values = (char *)malloc(30 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");
@@ -76,10 +76,19 @@ Circuit *control_unit(
     setGate(c, 62 + i * 5, OR, Rdst + i, c->values + 23, Rdst + i);
   }
 
-  // RA, gates [4,8] // BUG: sometimes, RA is set by the opcode
+  // RA, gates [4,7] U [183,202], values [26,29]
+  setGate(c, 4, OR, c->values + 8, c->values + 9, c->values + 26); // RA = SP
+  setGate(c, 5, OR, c->values + 10, c->values + 11, c->values + 27);
+  setGate(c, 6, OR, c->values + 27, c->values + 12, c->values + 27);  // RA = PC
+  setGate(c, 7, NOR, c->values + 26, c->values + 27, c->values + 28); // RA = RA (not SP nor PC)
+
   for (int i = 0; i < 4; i++)
   {
-    setGate(c, 4 + i, AND, instruction + 4 + i, instruction + 4 + i, RA + i);
+    setGate(c, 183 + i * 5, AND, c->values + 26, const4_SP + i, RA + i);               // SP
+    setGate(c, 184 + i * 5, AND, c->values + 27, const4_PC + i, c->values + 29);       // PC
+    setGate(c, 185 + i * 5, OR, RA + i, c->values + 29, RA + i);                       // SP OR PC
+    setGate(c, 186 + i * 5, AND, c->values + 28, instruction + 8 + i, c->values + 29); // RA
+    setGate(c, 187 + i * 5, OR, RA + i, c->values + 29, RA + i);                       // SP OR PC OR RA
   }
 
   // RB, gates [8,11]
