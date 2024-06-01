@@ -87,7 +87,7 @@ Circuit *control_unit(
     setGate(c, 183 + i * 5, AND, c->values + 26, const4_SP + i, RA + i);               // SP
     setGate(c, 184 + i * 5, AND, c->values + 27, const4_PC + i, c->values + 29);       // PC
     setGate(c, 185 + i * 5, OR, RA + i, c->values + 29, RA + i);                       // SP OR PC
-    setGate(c, 186 + i * 5, AND, c->values + 28, instruction + 8 + i, c->values + 29); // RA
+    setGate(c, 186 + i * 5, AND, c->values + 28, instruction + 4 + i, c->values + 29); // RA
     setGate(c, 187 + i * 5, OR, RA + i, c->values + 29, RA + i);                       // SP OR PC OR RA
   }
 

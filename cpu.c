@@ -36,7 +36,7 @@ void writeRegister(char *registers, int index, char *data)
 {
   if (index < 0 || index >= 16)
   {
-    printf(stderr, "Invalid register index provided.");
+    fprintf(stderr, "Invalid register index provided.");
     return;
   }
   for (int i = 0; i < 16; i++)
@@ -124,6 +124,19 @@ Cpu *createCpu()
     setGate(cpu->lsl_module, i, AND, cpu->RA_val + i, cpu->RA_val + i, cpu->alu_input1 + i);
   }
 
+  cpu->mux_alu_input1 = createCircuit(17, 0);
+  cpu->mux_alu_input1->values = (char *)malloc(1 * sizeof(char));
+  if (cpu->mux_alu_input1->values == NULL)
+  {
+    perror("Malloc failed. Terminating.");
+    exit(1);
+  }
+  setGate(cpu->mux_alu_input1, 0, NOT, cpu->zeroRA, cpu->zeroRA, cpu->mux_alu_input1->values);
+  for (int i = 0; i < 16; i++)
+  {
+    setGate(cpu->mux_alu_input1, 1 + i, AND, cpu->mux_alu_input1->values, cpu->RA_val + i, cpu->alu_input1 + i);
+  }
+
   cpu->mux_alu_input2 = mux_alu_input2(
       cpu->RB_val,
       cpu->Imm,
@@ -156,11 +169,12 @@ Cpu *createCpu()
 
 void cpuStart(Cpu *cpu)
 {
-  int max_iterations = 1;
+  int max_iterations = 14;
   while (max_iterations--)
   {
     // Get the value of PC
     char PC[16];
+    printf("current address=");
     for (int i = 15; i >= 0; i--)
     {
       PC[i] = cpu->registers[15 + i * 16];
@@ -208,6 +222,9 @@ void cpuStart(Cpu *cpu)
     // LSL RA_val
     simulateCircuit(cpu->lsl_module);
 
+    // MUX RA_val
+    simulateCircuit(cpu->mux_alu_input1);
+
     // MUX RB_val
     simulateCircuit(cpu->mux_alu_input2);
 
@@ -215,18 +232,20 @@ void cpuStart(Cpu *cpu)
     simulateCircuit(cpu->alu);
 
     // Memory Interface
-    if (cpu->mem_inter_load) // load
+    if (cpu->mem_inter_load[0]) // load
     {
+      printf("load\n");
       memRead(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_out);
       writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
     }
-    else if (cpu->mem_inter_store) // store
+    else if (cpu->mem_inter_store[0]) // store
     {
+      printf("store\n");
       memWrite(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_in);
     }
 
     // Stack operations // TODO: Currently magic, emulate it
-    if (cpu->cu->values + 8) // push
+    if (cpu->cu->values[8]) // push
     {
       // char SP_data[16];
       // readRegister(cpu->registers, 13, SP_data);
@@ -234,7 +253,7 @@ void cpuStart(Cpu *cpu)
       // memWrite(cpu->memory, SP_data, );
       printf("WIP: PUSH STACK\n");
     }
-    else if (cpu->cu->values + 9) // pop
+    else if (cpu->cu->values[9]) // pop
     {
       printf("WIP: POP STACK\n");
     }

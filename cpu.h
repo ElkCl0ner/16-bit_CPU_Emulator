@@ -39,6 +39,7 @@ typedef struct Cpu
   Circuit *cu;
   Circuit *register_reader;
   Circuit *lsl_module; // TODO: imeplement, add and simulate lsl_module
+  Circuit *mux_alu_input1;
   Circuit *mux_alu_input2;
   Circuit *alu;
   Circuit *register_writer;

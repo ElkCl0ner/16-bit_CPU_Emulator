@@ -291,6 +291,7 @@ int main(int argc, char *argv[])
   printWord(d_out);
   */
 
+  /*
   Cpu *cpu = createCpu();
   for (int i = 0; i < 256; i++)
   {
@@ -313,6 +314,50 @@ int main(int argc, char *argv[])
   printWord(cpu->cu->values);
   cpuStart(cpu);
   printAllRegisters(cpu);
+  */
+
+  Cpu *cpu = createCpu();
+  for (int i = 0; i < 256; i++)
+  {
+    cpu->registers[i] = 0;
+  }
+  cpu->memory[0] = 0b00001101; // MOVI R0 #13
+  cpu->memory[1] = 0b01000000;
+  cpu->memory[2] = 0b00000111; // MOVI R1 #7
+  cpu->memory[3] = 0b01000001;
+  cpu->memory[4] = 0b00000001; // ADD R2 R0 R1
+  cpu->memory[5] = 0b00010010;
+  cpu->memory[6] = 0b00000001; // SUB R3 R0 R1
+  cpu->memory[7] = 0b00100011;
+  cpu->memory[8] = 0b00000001; // MUL R4 R0 R1
+  cpu->memory[9] = 0b00110100;
+  cpu->memory[10] = 0b11111110; // MOVI R5 0b11111110
+  cpu->memory[11] = 0b01000101;
+  cpu->memory[12] = 0b00100101; // STR R2 R5
+  cpu->memory[13] = 0b01110000;
+  cpu->memory[14] = 0b00000101; // LDR R6 R5
+  cpu->memory[15] = 0b01100101;
+  cpu->memory[16] = 0b01010000; // PUSH R5
+  cpu->memory[17] = 0b10000000;
+  cpu->memory[18] = 0b01110000; // POP R7
+  cpu->memory[19] = 0b10010000;
+  cpu->memory[20] = 0b00001000; // BL #8
+  cpu->memory[21] = 0b10100000;
+  cpu->memory[30] = 0; // HLT
+  cpu->memory[31] = 0;
+
+  cpuStart(cpu);
+  printAllRegisters(cpu);
+  printf("cu_add=%d\n", cpu->alu_add[0]);
+  printf("cu_sub=%d\n", cpu->alu_sub[0]);
+  printf("cu_mul=%d\n", cpu->alu_mul[0]);
+  printf("cu_nand=%d\n", cpu->alu_nand[0]);
+  printf("cu_zeroRA=%d\n", cpu->zeroRA[0]);
+  printArr(cpu->RA, 4);
+  printArr(cpu->RB, 4);
+  printArr(cpu->Rdst, 4);
+  printArr(cpu->alu_input1, 16);
+  printArr(cpu->alu_input2, 16);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

@@ -169,3 +169,9 @@ D = draw pixel buffer to screen
 ### Screen Char Buffer
 
 ## TODO
+
+- STR
+- LDR
+- PUSH
+- POP
+- LSL
