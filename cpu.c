@@ -68,24 +68,23 @@ Cpu *createCpu()
     exit(1);
   }
 
-  // cpu->PC_incrementor = createCircuit(16, 1); // TODO: consider how to implement this circuit
-  // cpu->PC_incrementor->values = (char *)malloc(32 * sizeof(char));
-  // if (cpu->PC_incrementor->values == NULL)
-  // {
-  //   perror("Malloc failed. Terminating.");
-  //   exit(1);
-  // }
-  // cpu->PC_incrementor->values[0] = 0; // constant 2
-  // cpu->PC_incrementor->values[1] = 1;
-  // for (int i = 2; i < 16; i++)
-  // {
-  //   cpu->PC_incrementor->values[i] = 0;
-  // }
-  // for (int i = 0; i < 16; i++) // get PC into 1 continuous array
-  // {
-  //   cpu->PC_incrementor->values[16+i] = 0;
-  // }
-  // cpu->PC_incrementor->subCircuits[0] = adder();
+  cpu->PC_incrementor = createCircuit(16, 2);
+  cpu->PC_incrementor->values = (char *)malloc(32 * sizeof(char));
+  if (cpu->PC_incrementor->values == NULL)
+  {
+    perror("Malloc failed. Terminating.");
+    exit(1);
+  }
+  for (int i = 0; i < 16; i++)
+  {
+    setGate(cpu->PC_incrementor, i, AND, cpu->registers + 15 + i * 16, cpu->registers + 15 + i * 16, cpu->PC_incrementor->values + i);
+  }
+  cpu->PC_incrementor->subCircuits[0] = adder(cpu->PC_incrementor->values, const16_0, cpu->PC_incrementor->values + 16, &trash);
+  cpu->PC_incrementor->subCircuits[1] = createCircuit(16, 0);
+  for (int i = 0; i < 16; i++)
+  {
+    setGate(cpu->PC_incrementor->subCircuits[1], i, AND, cpu->PC_incrementor->values + 16 + i, cpu->PC_incrementor->values + 16 + i, cpu->registers + 15 + i * 16);
+  }
 
   cpu->cu = control_unit(
       cpu->instruction,

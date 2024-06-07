@@ -24,23 +24,23 @@ Logic gate level emulation of a 16-bit cpu written in `C`
 ▄▄▄▄▄▄▄▄▄▄▄
 █   R 0   █       ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄        ▄▄▄▄▄▄▄▄▄▄▄▄
 █   R 1   █       █               █        █          █
-█   R 2   █  ┌───>█  Instruction* █───────>█   Main   █
+█   R 2   █  ┌───>█  Instruction  █───────>█   Main   █
 █   R 3   █  │    █    Fetcher    █<───────█  Memory  █
 █   R 4   █  │    █               █        █          █
 █   R 5   █  │    ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀        ▀▀▀▀▀▀▀▀▀▀▀▀
 █   R 6   █  │                │
 █   R 7   █  │                │     ▄▄▄▄▄▄▄▄▄▄▄▄▄                                     ▄▄▄▄▄▄▄▄
 █   R 8   █  │                └────>█           █<────────────────────────────────────█  Z   █
-█   R 9   █  │ ┌────────────────────█  Control* █───────────────────────┐             █ Flag █
+█   R 9   █  │ ┌────────────────────█  Control  █───────────────────────┐             █ Flag █
 █   R10   █  │ │  ▄▄▄▄▄▄▄▄▄▄▄▄▄▄    █   Unit    █─────────────────────┐ │             ▀▀▀▀▀▀▀▀
 █   R11   █  │ │  █            █<───█           █──────┐              │ │               ^  │
 █   R12   █──┼─┼─>█  Register  █    ▀▀▀▀▀▀▀▀▀▀▀▀▀      v              │ │               │  │
 █   S P   █  │ │  █   Reader   █      │    │  │      ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄  │ │               │  │
 █   L R   █  │ │  █            █      │    │  │      █             █  │ │               │  │
-█   P C<──█──┘ │  █ RA      RB █────┬─┼────┼──┼──┐   █   Memory?   █  │ │  ▄▄▄▄▄▄▄▄▄▄▄▄ │  │
+█   P C<──█──┘ │  █ RA      RB █────┬─┼────┼──┼──┐   █   Memory    █  │ │  ▄▄▄▄▄▄▄▄▄▄▄▄ │  │
 ▀▀▀▀▀▀▀▀▀▀▀    │  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀    v v    │  │  │   █  Interface  █  │ │  █          █ │  │
      ^         v    │             ▄▄▄▄▄▄▄  │  │  │   █             █──┼─┼─>█   Main   █ │  │
-     │  ▄▄▄▄▄▄▄▄▄▄  │             █ MUX*█<─┘  │  └──>█Addr         █<─┼─┼──█  Memory  █ │  │
+     │  ▄▄▄▄▄▄▄▄▄▄  │             █ MUX █<─┘  │  └──>█Addr         █<─┼─┼──█  Memory  █ │  │
      │  █  LSL*  █<─┴─────┐       ▀▀▀▀▀▀▀     │      █             █  │ │  █          █ │  │
      │  █ Module █──┐     └──────────┼────────┼─────>█DataIn       █  │ │  ▀▀▀▀▀▀▀▀▀▀▀▀ │  │
      │  ▀▀▀▀▀▀▀▀▀▀  v                v        │      █   DataOut   █  │ │               │  │
@@ -58,7 +58,7 @@ Logic gate level emulation of a 16-bit cpu written in `C`
      │                   v                                  │         │
      │               ▄▄▄▄▄▄▄▄▄▄▄▄▄▄                         │         │
      │               █            █<────────────────────────┘         │
-     └───────────────█  Register* █                                   │
+     └───────────────█  Register  █                                   │
                      █   Writer   █                                   │
                      █            █<──────────────────────────────────┘
                      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀
@@ -76,8 +76,8 @@ Logic gate level emulation of a 16-bit cpu written in `C`
 | MOVR     | Move Register    |   0101 | Rdst RegA XXXX | ADD    | Rdst | RA        | const0    | 0      | NO    |
 | LDR      | Load             |   0110 | Rdst XXXX Addr | X      | X    | X         | X         | 0      | NO    |
 | STR      | Store            |   0111 | XXXX RegA Addr | X      | X    | X         | X         | 0      | NO    |
-| PUSH     | Push stack       |   1000 | XXXX RegA XXXX | SUB    | SP   | SP        | const1    | 0      | NO    |
-| POP      | Pop stack        |   1001 | XXXX RegA XXXX | ADD    | SP   | SP        | const1    | 0      | NO    |
+| PUSH     | Push stack       |   1000 | XXXX RegA XXXX | SUB    | SP   | SP        | const2    | 0      | NO    |
+| POP      | Pop stack        |   1001 | XXXX RegA XXXX | ADD    | SP   | SP        | const2    | 0      | NO    |
 | BL       | Branch and link  |   1010 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |
 | BLZ      | Branch if ZERO   |   1011 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |
 | BX       | Jump to address  |   1100 | XXXX RegA XXXX | ADD    | PC   | RA        | const0    | 0      | NO    |

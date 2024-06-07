@@ -9,6 +9,7 @@
 #include "alu.h"
 #include "decoder.h"
 #include "control_unit.h"
+#include "new_control_unit.h"
 #include "register_writer.h"
 #include "register_reader.h"
 #include "z_flag_writer.h"
@@ -155,15 +156,14 @@ int main(int argc, char *argv[])
     printf("nand\n");
   printWord(n3);
   printf("zero=%d\n", z);
-
+  */
   printf("control unit\n");
-  // char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
-  char cu_instruction[16] = {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1}; // BLZ #5
+  char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
+  // char cu_instruction[16] = {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1}; // BLZ #5
   char cu_Zin = 0;
   char cu_Rdst[4];
   char cu_RA[4];
   char cu_RB[4];
-  char cu_Addr[4];
   char cu_Imm[16];
   char cu_zeroRA;
   char cu_LSL[16];
@@ -178,27 +178,26 @@ int main(int argc, char *argv[])
   char cu_link;
   char cu_storeOutputToRdst;
   char cu_halt;
-  Circuit *cu = control_unit(
+  Circuit *cu = new_control_unit(
       cu_instruction,
       &cu_Zin,
-      cu_Rdst,
-      cu_RA,
-      cu_RB,
-      cu_Addr,
-      cu_Imm,
-      &cu_zeroRA,
-      cu_LSL,
-      &cu_useImm,
+      &cu_halt,
       &cu_add,
       &cu_sub,
       &cu_mul,
       &cu_nand,
       &cu_memLoad,
       &cu_memStore,
+      &cu_zeroRA,
+      cu_LSL,
+      &cu_useImm,
       &cu_setZ,
       &cu_link,
       &cu_storeOutputToRdst,
-      &cu_halt);
+      cu_Rdst,
+      cu_RA,
+      cu_RB,
+      cu_Imm);
   simulateCircuit(cu);
   printf("Rdst=");
   printArr(cu_Rdst, 4);
@@ -206,8 +205,6 @@ int main(int argc, char *argv[])
   printArr(cu_RA, 4);
   printf("RB=");
   printArr(cu_RB, 4);
-  printf("Addr=");
-  printArr(cu_Addr, 4);
   printf("Imm=");
   printWord(cu_Imm);
   printf("zeroRA=%d\n", cu_zeroRA);
@@ -224,6 +221,7 @@ int main(int argc, char *argv[])
   printf("link=%d\n", cu_link);
   printf("storeOutputToRdst=%d\n", cu_storeOutputToRdst);
   printf("halt=%d\n", cu_halt);
+  /*
 
   printf("register writer\n");
   char writer_registers[256];
@@ -314,7 +312,7 @@ int main(int argc, char *argv[])
   printWord(cpu->cu->values);
   cpuStart(cpu);
   printAllRegisters(cpu);
-  */
+
 
   Cpu *cpu = createCpu();
   for (int i = 0; i < 256; i++)
@@ -358,6 +356,7 @@ int main(int argc, char *argv[])
   printArr(cpu->Rdst, 4);
   printArr(cpu->alu_input1, 16);
   printArr(cpu->alu_input2, 16);
+  */
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

@@ -48,9 +48,9 @@ Circuit *new_control_unit(
     char *RB,
     char *Imm)
 {
-  Circuit *c = createCircuit(0, 2);
+  Circuit *c = createCircuit(137, 2);
 
-  c->values = (char *)malloc(16 * sizeof(char));
+  c->values = (char *)malloc(29 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");
@@ -156,7 +156,7 @@ Circuit *new_control_unit(
     setGate(c, 89 + i, AND, instruction + i, instruction + i, RB + i);
   }
 
-  // Imm, gates [93,], vaues [25,]
+  // Imm, gates [93,136], vaues [25,28]
   setGate(c, 93, OR, c->values + 5, c->values + 12, c->values + 25);
   setGate(c, 94, OR, c->values + 25, c->values + 13, c->values + 25); // const0
 
@@ -168,7 +168,7 @@ Circuit *new_control_unit(
 
   setGate(c, 96, OR, c->values + 10, c->values + 11, c->values + 27); // imm12
 
-  for (int i = 0; i < 3; i++) // TODO: verify all of this
+  for (int i = 0; i < 3; i++)
   {
     setGate(c, 97 + i, AND, &zero, &zero, Imm + 13 + i);
   }
@@ -176,21 +176,29 @@ Circuit *new_control_unit(
 
   for (int i = 0; i < 4; i++)
   {
-    setGate(c, 101, AND, c->values + 27, instruction + 7 + i, Imm + 8 + i);
+    setGate(c, 101 + i, AND, c->values + 27, instruction + 7 + i, Imm + 8 + i);
   }
 
   for (int i = 0; i < 4; i++)
   {
-    setGate(c, 105, AND, c->values + 27, instruction + 3 + i, Imm + 4 + i);
-    setGate(c, 106, AND, c->values + 4, instruction + 4 + i, c->values + 28);
-    setGate(c, 107, OR, Imm + 4 + i, c->values + 28, Imm + 4 + i);
+    setGate(c, 105 + i * 3, AND, c->values + 27, instruction + 3 + i, Imm + 4 + i);
+    setGate(c, 106 + i * 3, AND, c->values + 4, instruction + 4 + i, c->values + 28);
+    setGate(c, 107 + i * 3, OR, Imm + 4 + i, c->values + 28, Imm + 4 + i);
   }
 
   for (int i = 0; i < 3; i++)
   {
-    // TODO: complete this
+    setGate(c, 117 + i * 5, AND, c->values + 27, instruction + i, Imm + 1 + i);
+    setGate(c, 118 + i * 5, AND, c->values + 4, instruction + 1 + i, c->values + 28);
+    setGate(c, 119 + i * 5, OR, Imm + 1 + i, c->values + 28, Imm + 1 + i);
+    setGate(c, 120 + i * 5, AND, c->values + 15, instruction + 1 + i, c->values + 28);
+    setGate(c, 121 + i * 5, OR, Imm + 1 + i, c->values + 28, Imm + 1 + i);
   }
-  // TODO: complete this
+  setGate(c, 132, AND, c->values + 4, instruction, Imm);
+  setGate(c, 133, AND, c->values + 15, instruction, c->values + 28);
+  setGate(c, 134, OR, Imm, c->values + 28, Imm);
+  setGate(c, 135, AND, c->values + 26, &one, c->values + 28);
+  setGate(c, 136, OR, Imm, c->values + 28, Imm);
 
   return c;
 }
