@@ -156,7 +156,7 @@ int main(int argc, char *argv[])
     printf("nand\n");
   printWord(n3);
   printf("zero=%d\n", z);
-  */
+  
   printf("control unit\n");
   char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
   // char cu_instruction[16] = {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1}; // BLZ #5
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
   printf("link=%d\n", cu_link);
   printf("storeOutputToRdst=%d\n", cu_storeOutputToRdst);
   printf("halt=%d\n", cu_halt);
-  /*
+  */
 
   printf("register writer\n");
   char writer_registers[256];
@@ -230,15 +230,18 @@ int main(int argc, char *argv[])
     writer_registers[i * 16] = 0;
   }
   char writer_alu_output[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
+  char writer_mem_inter_data_out[16] = {0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
   char writer_Rdst[4] = {0, 0, 0, 0};
-  char writer_storeOutput = 1;
-  Circuit *writer = register_writer(writer_registers, writer_alu_output, writer_Rdst, &writer_storeOutput);
+  char writer_storeOutput = 0;
+  char writer_mem_load = 1;
+  Circuit *writer = register_writer(writer_registers, writer_alu_output, writer_mem_inter_data_out, writer_Rdst, &writer_storeOutput, &writer_mem_load);
   simulateCircuit(writer);
   for (int i = 15; i >= 0; i--)
   {
     printf("%d", writer_registers[i * 16]);
   }
   printf("\n");
+  /*
 
   printf("register reader\n");
   char reader_registers[256];
@@ -259,6 +262,7 @@ int main(int argc, char *argv[])
   printWord(reader_RAout);
   printf("RB_out=");
   printWord(reader_RBout);
+  
 
   printf("z flag writer\n");
   char z_z = 1;
@@ -270,7 +274,7 @@ int main(int argc, char *argv[])
   printf("z_after=%d\n", z_z);
   printf("alu_zero=%d\n", z_alu_zero);
   printf("cu_setZ=%d\n", z_cu_setZ);
-  */
+  
 
   /*
   printf("memory\n");
