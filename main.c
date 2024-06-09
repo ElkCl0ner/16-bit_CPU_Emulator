@@ -14,6 +14,7 @@
 #include "register_reader.h"
 #include "z_flag_writer.h"
 #include "memory.h"
+#include "linker.h"
 #include "cpu.h"
 
 #include <stdio.h>
@@ -221,7 +222,7 @@ int main(int argc, char *argv[])
   printf("link=%d\n", cu_link);
   printf("storeOutputToRdst=%d\n", cu_storeOutputToRdst);
   printf("halt=%d\n", cu_halt);
-  */
+
 
   printf("register writer\n");
   char writer_registers[256];
@@ -241,7 +242,7 @@ int main(int argc, char *argv[])
     printf("%d", writer_registers[1 + i * 16]);
   }
   printf("\n");
-  /*
+
 
   printf("register reader\n");
   char reader_registers[256];
@@ -316,8 +317,31 @@ int main(int argc, char *argv[])
   printWord(cpu->cu->values);
   cpuStart(cpu);
   printAllRegisters(cpu);
+  */
 
+  printf("linker\n");
+  char registers[256];
+  for (int i = 0; i < 256; i++)
+  {
+    registers[i] = 0;
+  }
+  for (int i = 0; i < 16; i++)
+  {
+    registers[14 + i * 16] = 1; // LR
+    registers[15 + i * 16] = 1; // PC
+  }
+  registers[14] = 0;
+  char link = 1;
+  Circuit *tst_linker = linker(registers, &link);
+  simulateCircuit(tst_linker);
+  printf("LR=");
+  for (int i = 0; i < 16; i++)
+  {
+    printf("%d", registers[14 + i * 16]);
+  }
+  printf("\n");
 
+  /*
   Cpu *cpu = createCpu();
   for (int i = 0; i < 256; i++)
   {
