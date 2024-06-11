@@ -48,7 +48,7 @@ Circuit *control_unit(
     char *RB,
     char *Imm)
 {
-  Circuit *c = createCircuit(139, 2);
+  Circuit *c = createCircuit(141, 2);
 
   c->values = (char *)malloc(29 * sizeof(char));
   if (c->values == NULL)
@@ -98,12 +98,12 @@ Circuit *control_unit(
     setGate(c, 15 + i, AND, c->values + 13, LSL + i, LSL + i);
   }
 
-  // useImm, gates [31,32] U [137,138], no values
+  // useImm, gates [31,32] U [139,140], no values
   // (!1 AND !2) NOR c->val+14
   setGate(c, 31, NOR, instruction + 15, instruction + 14, useImm);
   setGate(c, 32, OR, useImm, c->values + 14, useImm);
-  setGate(c, 137, OR, useImm, c->values + 6, useImm);
-  setGate(c, 138, NOR, useImm, c->values + 7, useImm);
+  setGate(c, 139, OR, useImm, c->values + 6, useImm);
+  setGate(c, 140, NOR, useImm, c->values + 7, useImm);
 
   // setZ, gates [33,35], value {16}
   // (1 XNOR 2) AND (3 OR 4)
@@ -158,7 +158,7 @@ Circuit *control_unit(
     setGate(c, 89 + i, AND, instruction + i, instruction + i, RB + i);
   }
 
-  // Imm, gates [93,136], vaues [25,28]
+  // Imm, gates [93,138], vaues [25,28]
   setGate(c, 93, OR, c->values + 5, c->values + 12, c->values + 25);
   setGate(c, 94, OR, c->values + 25, c->values + 13, c->values + 25); // const0
 
@@ -199,8 +199,11 @@ Circuit *control_unit(
   setGate(c, 132, AND, c->values + 4, instruction, Imm);
   setGate(c, 133, AND, c->values + 15, instruction, c->values + 28);
   setGate(c, 134, OR, Imm, c->values + 28, Imm);
-  setGate(c, 135, AND, c->values + 26, &one, c->values + 28);
+  setGate(c, 135, AND, c->values + 26, &zero, c->values + 28);
   setGate(c, 136, OR, Imm, c->values + 28, Imm);
+
+  setGate(c, 137, AND, c->values + 26, &one, c->values + 28);
+  setGate(c, 138, OR, Imm + 1, c->values + 28, Imm + 1);
 
   return c;
 }
