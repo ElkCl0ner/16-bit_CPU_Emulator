@@ -9,7 +9,6 @@
 #include "alu.h"
 #include "decoder.h"
 #include "control_unit.h"
-#include "new_control_unit.h"
 #include "register_writer.h"
 #include "register_reader.h"
 #include "z_flag_writer.h"
@@ -158,8 +157,10 @@ int main(int argc, char *argv[])
   printWord(n3);
   printf("zero=%d\n", z);
 
+
   printf("control unit\n");
-  char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
+  // char cu_instruction[16] = {1, 0, 1, 1, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 1, 0}; // MOVI R5 #13
+  char cu_instruction[16] = {1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0}; // ADD R2 R0 R1
   // char cu_instruction[16] = {1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 1}; // BLZ #5
   char cu_Zin = 0;
   char cu_Rdst[4];
@@ -179,7 +180,7 @@ int main(int argc, char *argv[])
   char cu_link;
   char cu_storeOutputToRdst;
   char cu_halt;
-  Circuit *cu = new_control_unit(
+  Circuit *cu = control_unit(
       cu_instruction,
       &cu_Zin,
       &cu_halt,
@@ -319,6 +320,7 @@ int main(int argc, char *argv[])
   printAllRegisters(cpu);
   */
 
+  /*
   printf("linker\n");
   char registers[256];
   for (int i = 0; i < 256; i++)
@@ -340,8 +342,8 @@ int main(int argc, char *argv[])
     printf("%d", registers[14 + i * 16]);
   }
   printf("\n");
+  */
 
-  /*
   Cpu *cpu = createCpu();
   for (int i = 0; i < 256; i++)
   {
@@ -362,14 +364,14 @@ int main(int argc, char *argv[])
   cpu->memory[12] = 0b00100101; // STR R2 R5
   cpu->memory[13] = 0b01110000;
   cpu->memory[14] = 0b00000101; // LDR R6 R5
-  cpu->memory[15] = 0b01100101;
+  cpu->memory[15] = 0b01100110;
   cpu->memory[16] = 0b01010000; // PUSH R5
   cpu->memory[17] = 0b10000000;
   cpu->memory[18] = 0b01110000; // POP R7
   cpu->memory[19] = 0b10010000;
-  cpu->memory[20] = 0b00001000; // BL #8
+  cpu->memory[20] = 0b00000100; // BL #8
   cpu->memory[21] = 0b10100000;
-  cpu->memory[30] = 0; // HLT
+  cpu->memory[30] = 0b00000001; // HLT (with a 1 at LSB)
   cpu->memory[31] = 0;
 
   cpuStart(cpu);
@@ -379,12 +381,16 @@ int main(int argc, char *argv[])
   printf("cu_mul=%d\n", cpu->alu_mul[0]);
   printf("cu_nand=%d\n", cpu->alu_nand[0]);
   printf("cu_zeroRA=%d\n", cpu->zeroRA[0]);
+  printf("cu_useImm=%d\n", cpu->useImm[0]);
+  printf("cu_storeALUOutput=%d\n", cpu->store_output_to_Rdst[0]);
+  printf("cu_mem_store=%d\n", cpu->mem_inter_store[0]);
+  printf("cu_mem_load=%d\n", cpu->mem_inter_load[0]);
   printArr(cpu->RA, 4);
   printArr(cpu->RB, 4);
   printArr(cpu->Rdst, 4);
   printArr(cpu->alu_input1, 16);
   printArr(cpu->alu_input2, 16);
-  */
+  printArr(cpu->alu_output, 16);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

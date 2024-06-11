@@ -5,6 +5,7 @@
 #include "register_reader.h"
 #include "mux_alu_input2.h"
 #include "alu.h"
+#include "linker.h"
 #include "register_writer.h"
 #include "z_flag_writer.h"
 #include "memory.h"
@@ -89,24 +90,23 @@ Cpu *createCpu()
   cpu->cu = control_unit(
       cpu->instruction,
       cpu->z_flag,
-      cpu->Rdst,
-      cpu->RA,
-      cpu->RB,
-      cpu->mem_inter_addr,
-      cpu->Imm,
-      cpu->zeroRA,
-      cpu->LSL,
-      cpu->useImm,
+      cpu->halt,
       cpu->alu_add,
       cpu->alu_sub,
       cpu->alu_mul,
       cpu->alu_nand,
       cpu->mem_inter_load,
       cpu->mem_inter_store,
+      cpu->zeroRA,
+      cpu->LSL,
+      cpu->useImm,
       cpu->setZ,
       cpu->setLink,
       cpu->store_output_to_Rdst,
-      cpu->halt);
+      cpu->Rdst,
+      cpu->RA,
+      cpu->RB,
+      cpu->Imm);
 
   cpu->register_reader = register_reader(
       cpu->registers,
@@ -152,11 +152,17 @@ Cpu *createCpu()
       cpu->alu_mul,
       cpu->alu_nand);
 
+  cpu->linker = linker(
+      cpu->registers,
+      cpu->setLink);
+
   cpu->register_writer = register_writer(
       cpu->registers,
       cpu->alu_output,
+      cpu->mem_inter_data_out,
       cpu->Rdst,
-      cpu->store_output_to_Rdst);
+      cpu->store_output_to_Rdst,
+      cpu->mem_inter_load);
 
   cpu->z_flag_writer = z_flag_writer(
       cpu->z_flag,
@@ -168,7 +174,7 @@ Cpu *createCpu()
 
 void cpuStart(Cpu *cpu)
 {
-  int max_iterations = 14;
+  int max_iterations = 9;
   while (max_iterations--)
   {
     // Get the value of PC
@@ -204,6 +210,7 @@ void cpuStart(Cpu *cpu)
     {
       cpu->registers[15 + i * 16] = (fake_PC >> i) & 0b1;
     }
+    // simulateCircuit(cpu->PC_incrementor);
 
     // Decode instruction
     simulateCircuit(cpu->cu);
@@ -234,13 +241,13 @@ void cpuStart(Cpu *cpu)
     if (cpu->mem_inter_load[0]) // load
     {
       printf("load\n");
-      memRead(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_out);
+      memRead(cpu->memory, cpu->RB_val, cpu->mem_inter_data_out);
       writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
     }
     else if (cpu->mem_inter_store[0]) // store
     {
       printf("store\n");
-      memWrite(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_in);
+      memWrite(cpu->memory, cpu->RB_val, cpu->RA_val);
     }
 
     // Stack operations // TODO: Currently magic, emulate it

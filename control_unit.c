@@ -8,227 +8,199 @@
 /**
  * Creates a control unit
  * @param instruction (char[16] *) (input)
- * @param Zin (char *) (input) Z flag
- * @param Rdst (char[4] *)
- * @param RA (char[4] *)
- * @param RB (char[4] *)
- * @param Addr (char[4] *)
- * @param Imm (char[16] *)
- * @param zeroRA (char *) signal to set input1 of the ALU to 0
- * @param LSL (char[16] *) (decoded control bits) specifies by how many bits to left shift the value of RegA entering the ALU
- * @param useImm (char *) signal to specify whether input2 of the ALU should be RB or Imm
+ * @param Zin (char *) (input) current Z Flag
+ * @param halt (char *) signal to halt execution
  * @param add (char *) ALU control signal
  * @param sub (char *) ALU control signal
  * @param mul (char *) ALU control signal
  * @param nand (char *) ALU control signal
- * @param memLoad (char *) signal that the current operation loads a word from main memory
- * @param memStore (char *) signal that the current operation stores a word to main memory
- * @param setZ (char *) signal to set the Z flag
- * @param link (char *) signal to set LR to PC (before storing the output of the ALU into Rdst)
- * @param storeOutputToRdst (char *) signal to specify whether the output of the ALU should be stored in Rdst
- * @param halt (char *) signal to halt execution
+ * @param memLoad (char *) Memory Interface & Register Writer signal
+ * @param memStore (char *) Memory Interface signal
+ * @param zeroRA (char *) signal to set input1 to 0
+ * @param LSL (char[16] *) (one-hot encoded) LSL Module control signals
+ * @param useImm (char *) signal to use Imm as input2
+ * @param setZ (char *) Z Flag Writer control signal
+ * @param link (char *) Linker Module control signal
+ * @param storeALUOutputToRdst (char *) Register Writer control signal
+ * @param Rdst (char[4] *) distination register
+ * @param RA (char[4] *) ALU input1 | Memory Interface data in
+ * @param RB (char[4] *) ALU input2 | Memory Interface address
+ * @param Imm (char[16] *) ALU input2
  */
 Circuit *control_unit(
     char *instruction,
     char *Zin,
-    char *Rdst,
-    char *RA,
-    char *RB,
-    char *Addr,
-    char *Imm,
-    char *zeroRA,
-    char *LSL,
-    char *useImm,
+    char *halt,
     char *add,
     char *sub,
     char *mul,
     char *nand,
     char *memLoad,
     char *memStore,
+    char *zeroRA,
+    char *LSL,
+    char *useImm,
     char *setZ,
     char *link,
-    char *storeOutputToRdst,
-    char *halt)
+    char *storeALUOutputToRdst,
+    char *Rdst,
+    char *RA,
+    char *RB,
+    char *Imm)
 {
-  Circuit *c = createCircuit(203, 2);
+  Circuit *c = createCircuit(139, 2);
 
-  c->values = (char *)malloc(30 * sizeof(char));
+  c->values = (char *)malloc(29 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");
     exit(1);
   }
 
-  // Decode instruction opcode, subCircuit 0, no gates, values [0,15]
+  // Decode instruction opcode, subCircuit {0}, no gates, values [0,15]
   c->subCircuits[0] = decoder(instruction + 12, c->values);
 
-  // Rdst, gates [0,3] U [58,77], values [18,23]
-  setGate(c, 0, OR, c->values + 8, c->values + 9, c->values + 18); // Rdst = SP
-  setGate(c, 1, OR, c->values + 10, c->values + 11, c->values + 19);
-  setGate(c, 2, OR, c->values + 19, c->values + 12, c->values + 19);  // Rdst = PC
-  setGate(c, 3, NOR, c->values + 18, c->values + 19, c->values + 20); // Rdst = Rdst
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 58 + i * 5, AND, const4_SP + i, c->values + 18, c->values + 21);       // Rdst = SP
-    setGate(c, 59 + i * 5, AND, const4_PC + i, c->values + 19, c->values + 22);       // Rdst = PC
-    setGate(c, 60 + i * 5, AND, instruction + 8 + i, c->values + 20, c->values + 23); // Rdst = Rdst
-    setGate(c, 61 + i * 5, OR, c->values + 21, c->values + 22, Rdst + i);
-    setGate(c, 62 + i * 5, OR, Rdst + i, c->values + 23, Rdst + i);
-  }
+  // halt, gate {0}, no values
+  setGate(c, 0, AND, c->values, c->values, halt);
 
-  // RA, gates [4,7] U [183,202], values [26,29]
-  setGate(c, 4, OR, c->values + 8, c->values + 9, c->values + 26); // RA = SP
-  setGate(c, 5, OR, c->values + 10, c->values + 11, c->values + 27);
-  setGate(c, 6, OR, c->values + 27, c->values + 12, c->values + 27);  // RA = PC
-  setGate(c, 7, NOR, c->values + 26, c->values + 27, c->values + 28); // RA = RA (not SP nor PC)
+  // add, gates [1,7], no values
+  setGate(c, 1, OR, c->values + 1, c->values + 4, add);
+  setGate(c, 2, OR, add, c->values + 5, add);
+  setGate(c, 3, OR, add, c->values + 9, add);
+  setGate(c, 4, OR, add, c->values + 10, add);
+  setGate(c, 5, OR, add, c->values + 11, add);
+  setGate(c, 6, OR, add, c->values + 12, add);
+  setGate(c, 7, OR, add, c->values + 13, add);
 
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 183 + i * 5, AND, c->values + 26, const4_SP + i, RA + i);               // SP
-    setGate(c, 184 + i * 5, AND, c->values + 27, const4_PC + i, c->values + 29);       // PC
-    setGate(c, 185 + i * 5, OR, RA + i, c->values + 29, RA + i);                       // SP OR PC
-    setGate(c, 186 + i * 5, AND, c->values + 28, instruction + 4 + i, c->values + 29); // RA
-    setGate(c, 187 + i * 5, OR, RA + i, c->values + 29, RA + i);                       // SP OR PC OR RA
-  }
+  // sub, gates [8,9], no values
+  setGate(c, 8, OR, c->values + 2, c->values + 8, sub);
+  setGate(c, 9, OR, sub, c->values + 15, sub);
 
-  // RB, gates [8,11]
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 8 + i, AND, instruction + i, instruction + i, RB + i);
-  }
+  // mul, gate {10}, no values
+  setGate(c, 10, AND, c->values + 3, c->values + 3, mul);
 
-  // Addr, gates [12,15]
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 12 + i, AND, instruction + i, instruction + i, Addr + i);
-  }
+  // nand, gate {11}, no values
+  setGate(c, 11, AND, c->values + 14, c->values + 14, nand);
 
-  // Imm, gates [16,34] U {36} U [78,163]\{151}, values [16,17] U {24}
-  setGate(c, 16, OR, c->values + 5, c->values + 12, c->values + 16);
-  setGate(c, 17, OR, c->values + 16, c->values + 13, c->values + 16); // Imm = 0
-  setGate(c, 18, OR, c->values + 10, c->values + 11, c->values + 17); // Imm = Imm12
+  // memLoad, gate {12}, no values
+  setGate(c, 12, AND, c->values + 6, c->values + 6, memLoad);
 
-  setGate(c, 19, AND, c->values + 8, &one, Imm);              // -1
-  setGate(c, 20, AND, c->values + 16, &zero, c->values + 24); // 0
-  setGate(c, 21, OR, Imm, c->values + 24, Imm);
-  setGate(c, 22, AND, c->values + 9, &one, c->values + 24); // 1
-  setGate(c, 23, OR, Imm, c->values + 24, Imm);
-  setGate(c, 24, AND, c->values + 15, instruction, c->values + 24); // Imm4
-  setGate(c, 25, OR, Imm, c->values + 24, Imm);
-  setGate(c, 26, AND, c->values + 4, instruction, c->values + 24); // Imm8
-  setGate(c, 27, OR, Imm, c->values + 24, Imm);
-  setGate(c, 28, AND, c->values + 17, instruction, c->values + 24); // Imm12
-  setGate(c, 29, OR, Imm, c->values + 24, Imm);
+  // memStore, gate {13}, no values
+  setGate(c, 13, AND, c->values + 7, c->values + 7, memStore);
 
-  setGate(c, 30, OR, c->values + 16, c->values + 9, c->values + 16); // Imm = 0 or 1 (fill all subsequent bits with 0)
-  setGate(c, 31, AND, c->values + 8, &one, Imm + 1);                 // -1
-  setGate(c, 32, AND, c->values + 16, &zero, c->values + 24);        // 0 or 1
-  setGate(c, 33, OR, Imm + 1, c->values + 24, Imm + 1);
-  setGate(c, 34, AND, c->values + 15, instruction + 1, c->values + 24); // Imm4
-  setGate(c, 78, OR, Imm + 1, c->values + 24, Imm + 1);
-  setGate(c, 79, AND, c->values + 4, instruction + 1, c->values + 24); // Imm8
-  setGate(c, 80, OR, Imm + 1, c->values + 24, Imm + 1);
-  setGate(c, 81, AND, c->values + 17, instruction + 1, c->values + 24); // Imm12
-  setGate(c, 82, OR, Imm + 1, c->values + 24, Imm + 1);
-  for (int i = 2; i < 4; i++)
-  {
-    setGate(c, 83 + (i - 2) * 9, AND, c->values + 8, &one, Imm + i);          // -1
-    setGate(c, 84 + (i - 2) * 9, AND, c->values + 16, &zero, c->values + 24); // 0 or 1
-    setGate(c, 85 + (i - 2) * 9, OR, Imm + i, c->values + 24, Imm + i);
-    setGate(c, 86 + (i - 2) * 9, AND, c->values + 15, instruction + i, c->values + 24); // Imm4
-    setGate(c, 87 + (i - 2) * 9, OR, Imm + i, c->values + 24, Imm + i);
-    setGate(c, 88 + (i - 2) * 9, AND, c->values + 4, instruction + i, c->values + 24); // Imm8
-    setGate(c, 89 + (i - 2) * 9, OR, Imm + i, c->values + 24, Imm + i);
-    setGate(c, 90 + (i - 2) * 9, AND, c->values + 17, instruction + i, c->values + 24); // Imm12
-    setGate(c, 91 + (i - 2) * 9, OR, Imm + i, c->values + 24, Imm + i);
-  }
+  // zeroRA, gate {14}, no values
+  setGate(c, 14, AND, c->values + 4, c->values + 4, zeroRA);
 
-  setGate(c, 101, OR, c->values + 16, c->values + 15, c->values + 16); // Imm = 0 or 1 or Imm4
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 102 + i * 7, AND, c->values + 8, &one, Imm + 4 + i);      // -1
-    setGate(c, 103 + i * 7, AND, c->values + 16, &zero, c->values + 24); // 0 or 1 or Imm4
-    setGate(c, 104 + i * 7, OR, Imm + 4 + i, c->values + 24, Imm + 4 + i);
-    setGate(c, 105 + i * 7, AND, c->values + 4, instruction + 4 + i, c->values + 24); // Imm8
-    setGate(c, 106 + i * 7, OR, Imm + 4 + i, c->values + 24, Imm + 4 + i);
-    setGate(c, 107 + i * 7, AND, c->values + 17, instruction + 4 + i, c->values + 24); // Imm12
-    setGate(c, 108 + i * 7, OR, Imm + 4 + i, c->values + 24, Imm + 4 + i);
-  }
-
-  setGate(c, 130, OR, c->values + 16, c->values + 4, c->values + 16); // Imm = 0 or 1 or Imm4 or Imm8
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 131 + i * 5, AND, c->values + 8, &one, Imm + 8 + i);      // -1
-    setGate(c, 132 + i * 5, AND, c->values + 16, &zero, c->values + 24); // 0 or 1 or Imm4 or Imm8
-    setGate(c, 133 + i * 5, OR, Imm + 8 + i, c->values + 24, Imm + 8 + i);
-    setGate(c, 134 + i * 5, AND, c->values + 17, instruction + 8 + i, c->values + 24); // Imm12
-    setGate(c, 135 + i * 5, OR, Imm + 8 + i, c->values + 24, Imm + 8 + i);
-  }
-
-  setGate(c, 36, OR, c->values + 16, c->values + 17, c->values + 16); // Imm = 0 or 1 or Imm4 or Imm8 or Imm12
-  for (int i = 0; i < 4; i++)
-  {
-    setGate(c, 152 + i * 3, AND, c->values + 8, &one, Imm + 12 + i);     // -1
-    setGate(c, 153 + i * 3, AND, c->values + 16, &zero, c->values + 24); // 0 or 1 or Imm4 or Imm8 or Imm12
-    setGate(c, 154 + i * 3, OR, Imm + 12 + i, c->values + 24, Imm + 12 + i);
-  }
-
-  // zeroRA, gate 35
-  setGate(c, 35, AND, c->values + 4, c->values + 4, zeroRA);
-
-  // LSL, gates [164,179]
+  // LSL, subCircuit {1}, gates [15,30], no values
   c->subCircuits[1] = decoder(instruction, LSL);
   for (int i = 0; i < 16; i++)
   {
-    setGate(c, 164 + i, AND, LSL + i, c->values + 13, LSL + i);
+    setGate(c, 15 + i, AND, c->values + 13, LSL + i, LSL + i);
   }
 
-  // useImm, gate 151
-  setGate(c, 151, OR, c->values + 16, c->values + 8, useImm); // uses values computed in the Imm extraction step
+  // useImm, gates [31,32] U [137,138], no values
+  // (!1 AND !2) NOR c->val+14
+  setGate(c, 31, NOR, instruction + 15, instruction + 14, useImm);
+  setGate(c, 32, OR, useImm, c->values + 14, useImm);
+  setGate(c, 137, OR, useImm, c->values + 6, useImm);
+  setGate(c, 138, NOR, useImm, c->values + 7, useImm);
 
-  // add, gates [37,43]
-  setGate(c, 37, OR, c->values + 1, c->values + 4, add);
-  setGate(c, 38, OR, add, c->values + 5, add);
-  setGate(c, 39, OR, add, c->values + 9, add);
-  setGate(c, 40, OR, add, c->values + 10, add);
-  setGate(c, 41, OR, add, c->values + 11, add);
-  setGate(c, 42, OR, add, c->values + 12, add);
-  setGate(c, 43, OR, add, c->values + 13, add);
+  // setZ, gates [33,35], value {16}
+  // (1 XNOR 2) AND (3 OR 4)
+  setGate(c, 33, XNOR, instruction + 15, instruction + 14, setZ);
+  setGate(c, 34, OR, instruction + 13, instruction + 14, c->values + 16);
+  setGate(c, 35, AND, setZ, c->values + 16, setZ);
 
-  // sub, gates [44.45]
-  setGate(c, 44, OR, c->values + 2, c->values + 8, sub);
-  setGate(c, 45, OR, sub, c->values + 15, sub);
+  // link, gate {36,37}, no values
+  setGate(c, 36, AND, c->values + 11, Zin, link);
+  setGate(c, 37, OR, link, c->values + 10, link);
 
-  // mul, gate 46
-  setGate(c, 46, AND, c->values + 3, c->values + 3, mul);
+  // storeALUOutputToRdst, gate [38,41], no values
+  setGate(c, 38, NOT, Zin, Zin, storeALUOutputToRdst);
+  setGate(c, 39, AND, c->values + 11, storeALUOutputToRdst, storeALUOutputToRdst);
+  setGate(c, 40, OR, storeALUOutputToRdst, c->values + 6, storeALUOutputToRdst);
+  setGate(c, 41, NOR, storeALUOutputToRdst, c->values + 7, storeALUOutputToRdst);
 
-  // nand, gate 47
-  setGate(c, 47, AND, c->values + 14, c->values + 14, nand);
+  // Rdst, gates [42,65], values [17,20]
+  setGate(c, 42, OR, c->values + 8, c->values + 9, c->values + 17); // Rdst = SP
 
-  // memLoad, gate 48
-  setGate(c, 48, AND, c->values + 6, c->values + 6, memLoad);
+  setGate(c, 43, OR, c->values + 10, c->values + 11, c->values + 18);
+  setGate(c, 44, OR, c->values + 18, c->values + 12, c->values + 18); // Rdst = PC
 
-  // memStore, gate 49
-  setGate(c, 49, AND, c->values + 7, c->values + 7, memStore);
+  setGate(c, 45, NOR, c->values + 17, c->values + 18, c->values + 19); // Rdst = Rdst
 
-  // setZ, gates [50,54]
-  setGate(c, 50, OR, c->values + 1, c->values + 2, setZ);
-  setGate(c, 51, OR, setZ, c->values + 3, setZ);
-  setGate(c, 52, OR, setZ, c->values + 13, setZ);
-  setGate(c, 53, OR, setZ, c->values + 14, setZ);
-  setGate(c, 54, OR, setZ, c->values + 15, setZ);
+  for (int i = 0; i < 4; i++)
+  {
+    setGate(c, 46 + i * 5, AND, c->values + 17, const4_SP + i, Rdst + i);             // SP
+    setGate(c, 47 + i * 5, AND, c->values + 18, const4_PC + i, c->values + 20);       // PC
+    setGate(c, 48 + i * 5, OR, Rdst + i, c->values + 20, Rdst + i);                   // SP OR PC
+    setGate(c, 49 + i * 5, AND, c->values + 19, instruction + 8 + i, c->values + 20); // Rdst
+    setGate(c, 50 + i * 5, OR, Rdst + i, c->values + 20, Rdst + i);                   // SP OR PC OR Rdst
+  }
 
-  // link, gate 55
-  setGate(c, 55, OR, c->values + 12, c->values + 13, link);
+  // RA, gates [66,88], values [21,24]
+  setGate(c, 66, OR, c->values + 8, c->values + 9, c->values + 21);    // SP
+  setGate(c, 67, OR, c->values + 10, c->values + 11, c->values + 22);  // PC
+  setGate(c, 68, NOR, c->values + 21, c->values + 22, c->values + 23); // RA
 
-  // storeOutputToRdst, gates {56} U [180,182], value 25
-  setGate(c, 56, NOR, c->values + 6, c->values + 7, storeOutputToRdst);
-  setGate(c, 180, NOT, c->values + 11, c->values + 11, c->values + 25);
-  setGate(c, 181, OR, c->values + 25, Zin, c->values + 25);
-  setGate(c, 182, AND, storeOutputToRdst, c->values + 25, storeOutputToRdst);
+  for (int i = 0; i < 4; i++)
+  {
+    setGate(c, 69 + i * 5, AND, c->values + 21, const4_SP + i, RA + i);           // SP
+    setGate(c, 70 + i * 5, AND, c->values + 22, const4_PC, c->values + 24);       // PC
+    setGate(c, 71 + i * 5, OR, RA + i, c->values + 24, RA + i);                   // SP OR PC
+    setGate(c, 72 + i * 5, AND, c->values + 23, instruction + 4, c->values + 24); // RA
+    setGate(c, 73 + i * 5, OR, RA + i, c->values + 24, RA + i);                   // SP OR PC OR RA
+  }
 
-  // halt, gate 57
-  setGate(c, 57, AND, c->values, c->values, halt);
+  // RB, gates [89,92], no values
+  for (int i = 0; i < 4; i++)
+  {
+    setGate(c, 89 + i, AND, instruction + i, instruction + i, RB + i);
+  }
+
+  // Imm, gates [93,136], vaues [25,28]
+  setGate(c, 93, OR, c->values + 5, c->values + 12, c->values + 25);
+  setGate(c, 94, OR, c->values + 25, c->values + 13, c->values + 25); // const0
+
+  setGate(c, 95, OR, c->values + 8, c->values + 9, c->values + 26); // const2
+
+  // c->values+15 = imm4
+
+  // c->values+4 = imm8
+
+  setGate(c, 96, OR, c->values + 10, c->values + 11, c->values + 27); // imm12
+
+  for (int i = 0; i < 3; i++)
+  {
+    setGate(c, 97 + i, AND, &zero, &zero, Imm + 13 + i);
+  }
+  setGate(c, 100, AND, c->values + 27, instruction + 11, Imm + 12);
+
+  for (int i = 0; i < 4; i++)
+  {
+    setGate(c, 101 + i, AND, c->values + 27, instruction + 7 + i, Imm + 8 + i);
+  }
+
+  for (int i = 0; i < 4; i++)
+  {
+    setGate(c, 105 + i * 3, AND, c->values + 27, instruction + 3 + i, Imm + 4 + i);
+    setGate(c, 106 + i * 3, AND, c->values + 4, instruction + 4 + i, c->values + 28);
+    setGate(c, 107 + i * 3, OR, Imm + 4 + i, c->values + 28, Imm + 4 + i);
+  }
+
+  for (int i = 0; i < 3; i++)
+  {
+    setGate(c, 117 + i * 5, AND, c->values + 27, instruction + i, Imm + 1 + i);
+    setGate(c, 118 + i * 5, AND, c->values + 4, instruction + 1 + i, c->values + 28);
+    setGate(c, 119 + i * 5, OR, Imm + 1 + i, c->values + 28, Imm + 1 + i);
+    setGate(c, 120 + i * 5, AND, c->values + 15, instruction + 1 + i, c->values + 28);
+    setGate(c, 121 + i * 5, OR, Imm + 1 + i, c->values + 28, Imm + 1 + i);
+  }
+  setGate(c, 132, AND, c->values + 4, instruction, Imm);
+  setGate(c, 133, AND, c->values + 15, instruction, c->values + 28);
+  setGate(c, 134, OR, Imm, c->values + 28, Imm);
+  setGate(c, 135, AND, c->values + 26, &one, c->values + 28);
+  setGate(c, 136, OR, Imm, c->values + 28, Imm);
 
   return c;
 }

@@ -42,6 +42,7 @@ typedef struct Cpu
   Circuit *mux_alu_input1;
   Circuit *mux_alu_input2;
   Circuit *alu;
+  Circuit *linker;
   Circuit *register_writer;
   Circuit *z_flag_writer;
 } Cpu;

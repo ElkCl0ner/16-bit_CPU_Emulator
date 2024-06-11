@@ -15,9 +15,9 @@
  */
 Circuit *register_writer(char *registers, char *alu_output, char *mem_inter_data_out, char *Rdst, char *storeOutput, char *mem_load)
 {
-  Circuit *c = createCircuit(1568, 1);
+  Circuit *c = createCircuit(2080, 1);
 
-  c->values = (char *)malloc(36 * sizeof(char));
+  c->values = (char *)malloc(38 * sizeof(char));
   if (c->values == NULL)
   {
     perror("Malloc failed. Terminating.");
@@ -43,13 +43,16 @@ Circuit *register_writer(char *registers, char *alu_output, char *mem_inter_data
   }
 
   // mem_load
+  // setGate(c, 800, NOT, mem_load, mem_load, c->values + 36);
   for (int i = 0; i < 16; i++) // foreach register
   {
     for (int j = 0; j < 16; j++) // foreach bit
     {
-      setGate(c, 800 + i * 48 + j * 3, AND, mem_load, mem_inter_data_out + j, c->values + 19);
-      setGate(c, 801 + i * 48 + j * 3, AND, c->values + 19, c->values + i, c->values + 19);
-      setGate(c, 802 + i * 48 + j * 3, OR, registers + i + j * 16, c->values + 19, registers + i + j * 16);
+      setGate(c, 800 + i * 80 + j * 5, NAND, mem_load, c->values + i, c->values + 37);
+      setGate(c, 801 + i * 80 + j * 5, AND, registers + i + j * 16, c->values + 37, registers + i + j * 16);
+      setGate(c, 802 + i * 80 + j * 5, AND, mem_load, mem_inter_data_out + j, c->values + 19);
+      setGate(c, 803 + i * 80 + j * 5, AND, c->values + 19, c->values + i, c->values + 19);
+      setGate(c, 804 + i * 80 + j * 5, OR, registers + i + j * 16, c->values + 19, registers + i + j * 16);
     }
   }
 

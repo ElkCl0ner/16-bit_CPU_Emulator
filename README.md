@@ -74,8 +74,8 @@ Logic gate level emulation of a 16-bit cpu written in `C`
 | MUL      | Multiply         |   0011 | Rdst RegA RegB | MUL    | Rdst | RA        | RB        | 0      | YES   |
 | MOVI     | Move Immediate   |   0100 | Rdst Imm8 """" | ADD    | Rdst | X         | imm8      | 1      | NO    |
 | MOVR     | Move Register    |   0101 | Rdst RegA XXXX | ADD    | Rdst | RA        | const0    | 0      | NO    |
-| LDR      | Load             |   0110 | Rdst XXXX Addr | X      | X    | X         | X         | 0      | NO    |
-| STR      | Store            |   0111 | XXXX RegA Addr | X      | X    | X         | X         | 0      | NO    |
+| LDR      | Load             |   0110 | Rdst XXXX Addr | X      | Rdst | X         | Addr(RB)  | 0      | NO    |
+| STR      | Store            |   0111 | XXXX RegA Addr | X      | X    | RA        | Addr(RB)  | 0      | NO    |
 | PUSH     | Push stack       |   1000 | XXXX RegA XXXX | SUB    | SP   | SP        | const2    | 0      | NO    |
 | POP      | Pop stack        |   1001 | XXXX RegA XXXX | ADD    | SP   | SP        | const2    | 0      | NO    |
 | BL       | Branch and link  |   1010 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |

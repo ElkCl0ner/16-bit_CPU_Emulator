@@ -12,7 +12,7 @@ LDR R6 R5     ; LDR
 PUSH R5       ; PUSH
 POP R7        ; POP
 
-BL #8          ; BL, PC_this_instruction=22, PC_destination=30
+BL #4          ; BL, PC_this_instruction=22, PC_destination=30
 
 ; put next instruction at #30
 SUB R8 R0 R1  ; setup for BLZ
