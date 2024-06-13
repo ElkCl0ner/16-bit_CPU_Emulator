@@ -77,7 +77,7 @@ Logic gate level emulation of a 16-bit cpu written in `C`
 | LDR      | Load             |   0110 | Rdst XXXX Addr | X      | Rdst | X         | Addr(RB)  | 0      | NO    |
 | STR      | Store            |   0111 | XXXX RegA Addr | X      | X    | RA        | Addr(RB)  | 0      | NO    |
 | PUSH     | Push stack       |   1000 | XXXX RegA XXXX | SUB    | SP   | SP        | const2    | 0      | NO    |
-| POP      | Pop stack        |   1001 | XXXX RegA XXXX | ADD    | SP   | SP        | const2    | 0      | NO    |
+| POP      | Pop stack        |   1001 | Rdst XXXX XXXX | ADD    | SP   | SP        | const2    | 0      | NO    |
 | BL       | Branch and link  |   1010 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |
 | BLZ      | Branch if ZERO   |   1011 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |
 | BX       | Jump to address  |   1100 | XXXX RegA XXXX | ADD    | PC   | RA        | const0    | 0      | NO    |
@@ -167,8 +167,4 @@ D = draw pixel buffer to screen
 
 ## TODO
 
-- STR
-- LDR
-- PUSH
-- POP
 - LSL

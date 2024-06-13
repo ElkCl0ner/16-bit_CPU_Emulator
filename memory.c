@@ -17,6 +17,20 @@ int convertBitArrayToInt(char *bits)
 
 /**
  * Helper function
+ * Converts a real int to a 16 bit (char) array
+ * @param in (int)
+ * @param out (char[16] *)
+ */
+void convertIntToBitArray(int in, char *out)
+{
+  for (int i = 0; i < 16; i++)
+  {
+    out[i] = (in >> i) & 1;
+  }
+}
+
+/**
+ * Helper function
  * Converts an 8 bit (char) array to a real char
  * @param bits (char[8] *)
  */

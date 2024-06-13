@@ -367,9 +367,9 @@ int main(int argc, char *argv[])
   cpu->memory[15] = 0b01100110;
   cpu->memory[16] = 0b01010000; // PUSH R5
   cpu->memory[17] = 0b10000000;
-  cpu->memory[18] = 0b01110000; // POP R7
-  cpu->memory[19] = 0b10010000;
-  cpu->memory[20] = 0b00000100; // BL #8
+  cpu->memory[18] = 0b00000000; // POP R7
+  cpu->memory[19] = 0b10010111;
+  cpu->memory[20] = 0b00000100; // BL #4
   cpu->memory[21] = 0b10100000;
   cpu->memory[30] = 0b00000001; // HLT (with a 1 at LSB)
   cpu->memory[31] = 0;
@@ -391,6 +391,8 @@ int main(int argc, char *argv[])
   printArr(cpu->alu_input1, 16);
   printArr(cpu->alu_input2, 16);
   printArr(cpu->alu_output, 16);
+  printf("%d\n", cpu->memory[65534]);
+  printf("%d\n", cpu->memory[65535]);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

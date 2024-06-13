@@ -174,7 +174,7 @@ Cpu *createCpu()
 
 void cpuStart(Cpu *cpu)
 {
-  int max_iterations = 9;
+  int max_iterations = 10;
   while (max_iterations--)
   {
     // Get the value of PC
@@ -250,18 +250,49 @@ void cpuStart(Cpu *cpu)
       memWrite(cpu->memory, cpu->RB_val, cpu->RA_val);
     }
 
-    // Stack operations // TODO: Currently magic, emulate it
+    // Stack operations
     if (cpu->cu->values[8]) // push
     {
-      // char SP_data[16];
-      // readRegister(cpu->registers, 13, SP_data);
-      // int SP_addr = convertBitArrayToInt(SP_data);
-      // memWrite(cpu->memory, SP_data, );
-      printf("WIP: PUSH STACK\n");
+      // Extract SP value
+      char SP_addr_fake[16];
+      readRegister(cpu->registers, 13, SP_addr_fake);
+      int SP_addr_int = convertBitArrayToInt(SP_addr_fake) - 2;
+      char SP_addr_real[16];
+      convertIntToBitArray(SP_addr_int, SP_addr_real);
+
+      // Extract src register
+      int Rsrc = 0;
+      for (int i = 0; i < 4; i++)
+      {
+        Rsrc |= (cpu->instruction[4 + i] & 1) << i;
+      }
+
+      // Extract src register value
+      char Rsrc_value[16];
+      readRegister(cpu->registers, Rsrc, Rsrc_value);
+
+      // Write to memory
+      memWrite(cpu->memory, SP_addr_real, Rsrc_value);
     }
     else if (cpu->cu->values[9]) // pop
     {
-      printf("WIP: POP STACK\n");
+      // Extract SP value
+      char SP_addr[16];
+      readRegister(cpu->registers, 13, SP_addr);
+
+      // Read from memory
+      char data_out[16];
+      memRead(cpu->memory, SP_addr, data_out);
+
+      // Extract Rdst
+      int Rdst = 0;
+      for (int i = 0; i < 4; i++)
+      {
+        Rdst |= (cpu->instruction[8 + i] & 1) << i;
+      }
+
+      // Write to Rdst
+      writeRegister(cpu->registers, Rdst, data_out);
     }
 
     // Write to Rdst
