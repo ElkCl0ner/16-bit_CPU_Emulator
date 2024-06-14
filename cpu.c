@@ -5,6 +5,7 @@
 #include "register_reader.h"
 #include "mux_alu_input2.h"
 #include "alu.h"
+#include "linker.h"
 #include "register_writer.h"
 #include "z_flag_writer.h"
 #include "memory.h"
@@ -21,7 +22,7 @@ int convertRegisterIndex(char *register_bits)
   int index = 0;
   for (int i = 0; i < 4; i++)
   {
-    index |= (register_bits[i] << i) & 0b1;
+    index |= register_bits[i] << i;
   }
   return index;
 }
@@ -68,46 +69,44 @@ Cpu *createCpu()
     exit(1);
   }
 
-  // cpu->PC_incrementor = createCircuit(16, 1); // TODO: consider how to implement this circuit
-  // cpu->PC_incrementor->values = (char *)malloc(32 * sizeof(char));
-  // if (cpu->PC_incrementor->values == NULL)
-  // {
-  //   perror("Malloc failed. Terminating.");
-  //   exit(1);
-  // }
-  // cpu->PC_incrementor->values[0] = 0; // constant 2
-  // cpu->PC_incrementor->values[1] = 1;
-  // for (int i = 2; i < 16; i++)
-  // {
-  //   cpu->PC_incrementor->values[i] = 0;
-  // }
-  // for (int i = 0; i < 16; i++) // get PC into 1 continuous array
-  // {
-  //   cpu->PC_incrementor->values[16+i] = 0;
-  // }
-  // cpu->PC_incrementor->subCircuits[0] = adder();
+  cpu->PC_incrementor = createCircuit(16, 2);
+  cpu->PC_incrementor->values = (char *)malloc(32 * sizeof(char));
+  if (cpu->PC_incrementor->values == NULL)
+  {
+    perror("Malloc failed. Terminating.");
+    exit(1);
+  }
+  for (int i = 0; i < 16; i++)
+  {
+    setGate(cpu->PC_incrementor, i, AND, cpu->registers + 15 + i * 16, cpu->registers + 15 + i * 16, cpu->PC_incrementor->values + i);
+  }
+  cpu->PC_incrementor->subCircuits[0] = adder(cpu->PC_incrementor->values, const16_0, cpu->PC_incrementor->values + 16, &trash);
+  cpu->PC_incrementor->subCircuits[1] = createCircuit(16, 0);
+  for (int i = 0; i < 16; i++)
+  {
+    setGate(cpu->PC_incrementor->subCircuits[1], i, AND, cpu->PC_incrementor->values + 16 + i, cpu->PC_incrementor->values + 16 + i, cpu->registers + 15 + i * 16);
+  }
 
   cpu->cu = control_unit(
       cpu->instruction,
       cpu->z_flag,
-      cpu->Rdst,
-      cpu->RA,
-      cpu->RB,
-      cpu->mem_inter_addr,
-      cpu->Imm,
-      cpu->zeroRA,
-      cpu->LSL,
-      cpu->useImm,
+      cpu->halt,
       cpu->alu_add,
       cpu->alu_sub,
       cpu->alu_mul,
       cpu->alu_nand,
       cpu->mem_inter_load,
       cpu->mem_inter_store,
+      cpu->zeroRA,
+      cpu->LSL,
+      cpu->useImm,
       cpu->setZ,
       cpu->setLink,
       cpu->store_output_to_Rdst,
-      cpu->halt);
+      cpu->Rdst,
+      cpu->RA,
+      cpu->RB,
+      cpu->Imm);
 
   cpu->register_reader = register_reader(
       cpu->registers,
@@ -118,11 +117,11 @@ Cpu *createCpu()
 
   // TODO: implement and replace this with the real lsl_module
   // currently just sends RA_val to alu_input1 without shifting
-  cpu->lsl_module = createCircuit(16, 0);
-  for (int i = 0; i < 16; i++)
-  {
-    setGate(cpu->lsl_module, i, AND, cpu->RA_val + i, cpu->RA_val + i, cpu->alu_input1 + i);
-  }
+  // cpu->lsl_module = createCircuit(16, 0);
+  // for (int i = 0; i < 16; i++)
+  // {
+  //   setGate(cpu->lsl_module, i, AND, cpu->RA_val + i, cpu->RA_val + i, cpu->alu_input1 + i);
+  // }
 
   cpu->mux_alu_input1 = createCircuit(17, 0);
   cpu->mux_alu_input1->values = (char *)malloc(1 * sizeof(char));
@@ -153,11 +152,17 @@ Cpu *createCpu()
       cpu->alu_mul,
       cpu->alu_nand);
 
+  cpu->linker = linker(
+      cpu->registers,
+      cpu->setLink);
+
   cpu->register_writer = register_writer(
       cpu->registers,
       cpu->alu_output,
+      cpu->mem_inter_data_out,
       cpu->Rdst,
-      cpu->store_output_to_Rdst);
+      cpu->store_output_to_Rdst,
+      cpu->mem_inter_load);
 
   cpu->z_flag_writer = z_flag_writer(
       cpu->z_flag,
@@ -169,7 +174,7 @@ Cpu *createCpu()
 
 void cpuStart(Cpu *cpu)
 {
-  int max_iterations = 14;
+  int max_iterations = 25;
   while (max_iterations--)
   {
     // Get the value of PC
@@ -205,6 +210,7 @@ void cpuStart(Cpu *cpu)
     {
       cpu->registers[15 + i * 16] = (fake_PC >> i) & 0b1;
     }
+    // simulateCircuit(cpu->PC_incrementor);
 
     // Decode instruction
     simulateCircuit(cpu->cu);
@@ -220,7 +226,26 @@ void cpuStart(Cpu *cpu)
     simulateCircuit(cpu->register_reader);
 
     // LSL RA_val
-    simulateCircuit(cpu->lsl_module);
+    // simulateCircuit(cpu->lsl_module);
+    int RA_val_real = 0;
+    for (int i = 0; i < 16; i++)
+    {
+      RA_val_real |= cpu->RA_val[i] << i;
+    }
+    int LSL_val_real = 0;
+    for (int i = 0; i < 16; i++)
+    {
+      if (cpu->LSL[i] == 1)
+      {
+        LSL_val_real = i;
+        break;
+      }
+    }
+    RA_val_real = RA_val_real << LSL_val_real;
+    for (int i = 0; i < 16; i++)
+    {
+      cpu->RA_val[i] = (RA_val_real >> i) & 1;
+    }
 
     // MUX RA_val
     simulateCircuit(cpu->mux_alu_input1);
@@ -235,31 +260,62 @@ void cpuStart(Cpu *cpu)
     if (cpu->mem_inter_load[0]) // load
     {
       printf("load\n");
-      memRead(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_out);
-      writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
+      memRead(cpu->memory, cpu->RB_val, cpu->mem_inter_data_out);
+      // writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
     }
     else if (cpu->mem_inter_store[0]) // store
     {
       printf("store\n");
-      memWrite(cpu->memory, cpu->mem_inter_addr, cpu->mem_inter_data_in);
+      memWrite(cpu->memory, cpu->RB_val, cpu->RA_val);
     }
 
-    // Stack operations // TODO: Currently magic, emulate it
+    // Stack operations
     if (cpu->cu->values[8]) // push
     {
-      // char SP_data[16];
-      // readRegister(cpu->registers, 13, SP_data);
-      // int SP_addr = convertBitArrayToInt(SP_data);
-      // memWrite(cpu->memory, SP_data, );
-      printf("WIP: PUSH STACK\n");
+      // Extract SP value
+      char SP_addr_fake[16];
+      readRegister(cpu->registers, 13, SP_addr_fake);
+      int SP_addr_int = convertBitArrayToInt(SP_addr_fake) - 2;
+      char SP_addr_real[16];
+      convertIntToBitArray(SP_addr_int, SP_addr_real);
+
+      // Extract src register
+      int Rsrc = 0;
+      for (int i = 0; i < 4; i++)
+      {
+        Rsrc |= (cpu->instruction[4 + i] & 1) << i;
+      }
+
+      // Extract src register value
+      char Rsrc_value[16];
+      readRegister(cpu->registers, Rsrc, Rsrc_value);
+
+      // Write to memory
+      memWrite(cpu->memory, SP_addr_real, Rsrc_value);
     }
     else if (cpu->cu->values[9]) // pop
     {
-      printf("WIP: POP STACK\n");
+      // Extract SP value
+      char SP_addr[16];
+      readRegister(cpu->registers, 13, SP_addr);
+
+      // Read from memory
+      char data_out[16];
+      memRead(cpu->memory, SP_addr, data_out);
+
+      // Extract Rdst
+      int Rdst = 0;
+      for (int i = 0; i < 4; i++)
+      {
+        Rdst |= (cpu->instruction[8 + i] & 1) << i;
+      }
+
+      // Write to Rdst
+      writeRegister(cpu->registers, Rdst, data_out);
     }
 
     // Write to Rdst
-    simulateCircuit(cpu->register_writer); // BUG: needs to consider storing data_out of the memory interface if it was a load instruction
+    simulateCircuit(cpu->register_writer);
 
     // Write Z flag
     simulateCircuit(cpu->z_flag_writer);

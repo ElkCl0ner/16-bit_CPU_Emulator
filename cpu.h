@@ -35,13 +35,14 @@ typedef struct Cpu
   char alu_input2[16];          // ALU input 2
   char alu_output[16];          // ALU output
   char alu_out_Z[1];            // ALU out: Z flag
-  // Circuit *PC_incrementor; // TODO: consider how to implement this ciruit
+  Circuit *PC_incrementor;
   Circuit *cu;
   Circuit *register_reader;
-  Circuit *lsl_module; // TODO: imeplement, add and simulate lsl_module
+  // Circuit *lsl_module; // TODO: imeplement, add and simulate lsl_module
   Circuit *mux_alu_input1;
   Circuit *mux_alu_input2;
   Circuit *alu;
+  Circuit *linker;
   Circuit *register_writer;
   Circuit *z_flag_writer;
 } Cpu;

@@ -12,17 +12,17 @@ LDR R6 R5     ; LDR
 PUSH R5       ; PUSH
 POP R7        ; POP
 
-BL #8          ; BL, PC_this_instruction=22, PC_destination=30
+BL #4         ; BL, PC_this_instruction=22, PC_destination=30
 
 ; put next instruction at #30
 SUB R8 R0 R1  ; setup for BLZ
-BLZ #6        ; BLZ with Z=false so skip instruction (target is #40)
+BLZ #8        ; BLZ with Z=false so skip instruction (target is #50)
 MOVI R8 #13
 SUB R8 R0 R8
-BLZ #10       ; BLZ with Z=true so branch (target = #40)
+BLZ #5       ; BLZ with Z=true so branch (target = #50)
 
-; put next instruction at #40
-MOVI R9 0b00100000    ; addr (#64 for BX)
+; put next instruction at #50
+MOVI R9 0b01000000    ; addr (#64 for BX)
 BX R9                 ; BX
 
 ; put next instruction at #64

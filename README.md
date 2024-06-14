@@ -41,7 +41,7 @@ Logic gate level emulation of a 16-bit cpu written in `C`
 ▀▀▀▀▀▀▀▀▀▀▀    │  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀    v v    │  │  │   █  Interface  █  │ │  █          █ │  │
      ^         v    │             ▄▄▄▄▄▄▄  │  │  │   █             █──┼─┼─>█   Main   █ │  │
      │  ▄▄▄▄▄▄▄▄▄▄  │             █ MUX █<─┘  │  └──>█Addr         █<─┼─┼──█  Memory  █ │  │
-     │  █  LSL   █<─┴─────┐       ▀▀▀▀▀▀▀     │      █             █  │ │  █          █ │  │
+     │  █  LSL*  █<─┴─────┐       ▀▀▀▀▀▀▀     │      █             █  │ │  █          █ │  │
      │  █ Module █──┐     └──────────┼────────┼─────>█DataIn       █  │ │  ▀▀▀▀▀▀▀▀▀▀▀▀ │  │
      │  ▀▀▀▀▀▀▀▀▀▀  v                v        │      █   DataOut   █  │ │               │  │
      │       ▄▄▄▄▄▄▄▄▄▄▄▄▄▄   ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ │      ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀  │ │               │  │
@@ -66,27 +66,24 @@ Logic gate level emulation of a 16-bit cpu written in `C`
 
 ## Instruction Set
 
-| Mnemonic | Full Name        | Opcode | Operands       | Set Z | ALU Rdst RA RB  |
-| :------- | :--------------- | -----: | :------------- | ----- | --------------- |
-| HLT      | Halt             |   0000 | XXXX XXXX XXXX | NO    | NOP             |
-| ADD      | Add              |   0001 | Rdst RegA RegB | YES   | ADD Rdst RA RB  |
-| SUB      | Subtract         |   0010 | Rdst RegA RegB | YES   | SUB Rdst RA RB  |
-| MUL      | Multiply         |   0011 | Rdst RegA RegB | YES   | MUL Rdst RA RB  |
-| MOVI     | Move Immediate   |   0100 | Rdst Imm8 """" | NO    | ADD Rdst 0 Imm  |
-| MOVR     | Move Register    |   0101 | Rdst RegA XXXX | NO    | ADD Rdst RA 0   |
-| LDR      | Load             |   0110 | Rdst XXXX Addr | NO    | NOP             |
-| STR      | Store            |   0111 | XXXX RegA Addr | NO    | NOP             |
-| PUSH     | Push stack       |   1000 | XXXX RegA XXXX | NO    | SUB SP SP -1    |
-| POP      | Pop stack        |   1001 | XXXX RegA XXXX | NO    | ADD SP SP 1     |
-| BL       | Branch and link  |   1010 | Im12 """" """" | NO    | ADD PC PC Imm\* |
-| BLZ      | Branch if ZERO   |   1011 | Im12 """" """" | NO    | ADD PC PC Imm\* |
-| BX       | Jump to address  |   1100 | XXXX RegA XXXX | NO    | ADD PC RA 0     |
-| LSL      | Logic shift left |   1101 | Rdst RegA Imm4 | YES   | ADD Rdst RA 0   |
-| NAND     | Bitwise NAND     |   1110 | Rdst RegA RegB | YES   | NAND Rdst RA RB |
-| DEC      | Decrement        |   1111 | Rdst RegA Imm4 | YES   | SUB Rdst RA Imm |
-
-(1) Imm\*: the immediate is added directly, it is not multiplied by the word size
-(2) Imm\*: the immediate is added directly, it is not multiplied by the word size
+| Mnemonic | Full Name        | Opcode | Operands       | ALU op | Rdst | input1    | input2    | zeroRA | Set Z |
+| :------- | :--------------- | -----: | :------------- | ------ | ---- | --------- | --------- | ------ | ----- |
+| HLT      | Halt             |   0000 | XXXX XXXX XXXX | X      | X    | X         | X         | X      | X     |
+| ADD      | Add              |   0001 | Rdst RegA RegB | ADD    | Rdst | RA        | RB        | 0      | YES   |
+| SUB      | Subtract         |   0010 | Rdst RegA RegB | SUB    | Rdst | RA        | RB        | 0      | YES   |
+| MUL      | Multiply         |   0011 | Rdst RegA RegB | MUL    | Rdst | RA        | RB        | 0      | YES   |
+| MOVI     | Move Immediate   |   0100 | Rdst Imm8 """" | ADD    | Rdst | X         | imm8      | 1      | NO    |
+| MOVR     | Move Register    |   0101 | Rdst RegA XXXX | ADD    | Rdst | RA        | const0    | 0      | NO    |
+| LDR      | Load             |   0110 | Rdst XXXX Addr | X      | Rdst | X         | Addr(RB)  | 0      | NO    |
+| STR      | Store            |   0111 | XXXX RegA Addr | X      | X    | RA        | Addr(RB)  | 0      | NO    |
+| PUSH     | Push stack       |   1000 | XXXX RegA XXXX | SUB    | SP   | SP        | const2    | 0      | NO    |
+| POP      | Pop stack        |   1001 | Rdst XXXX XXXX | ADD    | SP   | SP        | const2    | 0      | NO    |
+| BL       | Branch and link  |   1010 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |
+| BLZ      | Branch if ZERO   |   1011 | Im12 """" """" | ADD    | PC   | PC        | imm12 <<1 | 0      | NO    |
+| BX       | Jump to address  |   1100 | XXXX RegA XXXX | ADD    | PC   | RA        | const0    | 0      | NO    |
+| LSL      | Logic shift left |   1101 | Rdst RegA Imm4 | ADD    | Rdst | RA <<imm4 | const0    | 0      | YES   |
+| NAND     | Bitwise NAND     |   1110 | Rdst RegA RegB | NAND   | Rdst | RA        | RB        | 0      | YES   |
+| DEC      | Decrement        |   1111 | Rdst RegA Imm4 | SUB    | Rdst | RA        | imm4      | 0      | YES   |
 
 **Pseudo Instructions**
 
@@ -170,8 +167,4 @@ D = draw pixel buffer to screen
 
 ## TODO
 
-- STR
-- LDR
-- PUSH
-- POP
 - LSL
