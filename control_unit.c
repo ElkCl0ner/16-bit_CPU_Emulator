@@ -145,11 +145,11 @@ Circuit *control_unit(
 
   for (int i = 0; i < 4; i++)
   {
-    setGate(c, 69 + i * 5, AND, c->values + 21, const4_SP + i, RA + i);           // SP
-    setGate(c, 70 + i * 5, AND, c->values + 22, const4_PC, c->values + 24);       // PC
-    setGate(c, 71 + i * 5, OR, RA + i, c->values + 24, RA + i);                   // SP OR PC
-    setGate(c, 72 + i * 5, AND, c->values + 23, instruction + 4, c->values + 24); // RA
-    setGate(c, 73 + i * 5, OR, RA + i, c->values + 24, RA + i);                   // SP OR PC OR RA
+    setGate(c, 69 + i * 5, AND, c->values + 21, const4_SP + i, RA + i);               // SP
+    setGate(c, 70 + i * 5, AND, c->values + 22, const4_PC, c->values + 24);           // PC
+    setGate(c, 71 + i * 5, OR, RA + i, c->values + 24, RA + i);                       // SP OR PC
+    setGate(c, 72 + i * 5, AND, c->values + 23, instruction + 4 + i, c->values + 24); // RA
+    setGate(c, 73 + i * 5, OR, RA + i, c->values + 24, RA + i);                       // SP OR PC OR RA
   }
 
   // RB, gates [89,92], no values

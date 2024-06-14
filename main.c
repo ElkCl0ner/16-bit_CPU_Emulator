@@ -371,8 +371,37 @@ int main(int argc, char *argv[])
   cpu->memory[19] = 0b10010111;
   cpu->memory[20] = 0b00000100; // BL #4
   cpu->memory[21] = 0b10100000;
-  cpu->memory[30] = 0b00000001; // HLT (with a 1 at LSB)
-  cpu->memory[31] = 0;
+
+  cpu->memory[30] = 0b00000001; // SUB R8 R0 R1
+  cpu->memory[31] = 0b00101000;
+  cpu->memory[32] = 0b00001000; // BLZ #8
+  cpu->memory[33] = 0b10110000;
+  cpu->memory[34] = 0b00001101; // MOVI R8 #13
+  cpu->memory[35] = 0b01001000;
+  cpu->memory[36] = 0b00001000; // SUB R8 R0 R8
+  cpu->memory[37] = 0b00101000;
+  cpu->memory[38] = 0b00000101; // BLZ #5
+  cpu->memory[39] = 0b10110000;
+
+  cpu->memory[50] = 0b01000000; // MOVI R9 0b01000000
+  cpu->memory[51] = 0b01001001;
+  cpu->memory[52] = 0b10010000; // BX R9
+  cpu->memory[53] = 0b11000000;
+
+  cpu->memory[64] = 0b11111111; // MOVI R10 0b01111111
+  cpu->memory[65] = 0b01001010;
+  cpu->memory[66] = 0b10100001; // LSL R10 R10 #1
+  cpu->memory[67] = 0b11011010;
+  cpu->memory[68] = 0b10101010; // MOVI R11 0b10101010
+  cpu->memory[69] = 0b01001011;
+  cpu->memory[70] = 0b10101011; // NAND R11 R10 R11
+  cpu->memory[71] = 0b11101011;
+  cpu->memory[72] = 0b00000010; // MOVI R12 #2
+  cpu->memory[73] = 0b01001100;
+  cpu->memory[74] = 0b11000011; // DEC R12 R12 #3
+  cpu->memory[75] = 0b11111100;
+  cpu->memory[76] = 0b00000001; // HLT
+  cpu->memory[77] = 0b00000000;
 
   cpuStart(cpu);
   printAllRegisters(cpu);
@@ -391,8 +420,10 @@ int main(int argc, char *argv[])
   printArr(cpu->alu_input1, 16);
   printArr(cpu->alu_input2, 16);
   printArr(cpu->alu_output, 16);
+  printArr(cpu->mem_inter_data_out, 16);
   printf("%d\n", cpu->memory[65534]);
   printf("%d\n", cpu->memory[65535]);
+  printArr(cpu->register_writer->values + 0, 16);
 
   end = clock();
   printf("total time=%f\n", ((double)(end - start)) / CLOCKS_PER_SEC);

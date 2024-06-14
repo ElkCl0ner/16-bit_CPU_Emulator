@@ -22,7 +22,7 @@ int convertRegisterIndex(char *register_bits)
   int index = 0;
   for (int i = 0; i < 4; i++)
   {
-    index |= (register_bits[i] << i) & 0b1;
+    index |= register_bits[i] << i;
   }
   return index;
 }
@@ -117,11 +117,11 @@ Cpu *createCpu()
 
   // TODO: implement and replace this with the real lsl_module
   // currently just sends RA_val to alu_input1 without shifting
-  cpu->lsl_module = createCircuit(16, 0);
-  for (int i = 0; i < 16; i++)
-  {
-    setGate(cpu->lsl_module, i, AND, cpu->RA_val + i, cpu->RA_val + i, cpu->alu_input1 + i);
-  }
+  // cpu->lsl_module = createCircuit(16, 0);
+  // for (int i = 0; i < 16; i++)
+  // {
+  //   setGate(cpu->lsl_module, i, AND, cpu->RA_val + i, cpu->RA_val + i, cpu->alu_input1 + i);
+  // }
 
   cpu->mux_alu_input1 = createCircuit(17, 0);
   cpu->mux_alu_input1->values = (char *)malloc(1 * sizeof(char));
@@ -174,7 +174,7 @@ Cpu *createCpu()
 
 void cpuStart(Cpu *cpu)
 {
-  int max_iterations = 10;
+  int max_iterations = 25;
   while (max_iterations--)
   {
     // Get the value of PC
@@ -226,7 +226,26 @@ void cpuStart(Cpu *cpu)
     simulateCircuit(cpu->register_reader);
 
     // LSL RA_val
-    simulateCircuit(cpu->lsl_module);
+    // simulateCircuit(cpu->lsl_module);
+    int RA_val_real = 0;
+    for (int i = 0; i < 16; i++)
+    {
+      RA_val_real |= cpu->RA_val[i] << i;
+    }
+    int LSL_val_real = 0;
+    for (int i = 0; i < 16; i++)
+    {
+      if (cpu->LSL[i] == 1)
+      {
+        LSL_val_real = i;
+        break;
+      }
+    }
+    RA_val_real = RA_val_real << LSL_val_real;
+    for (int i = 0; i < 16; i++)
+    {
+      cpu->RA_val[i] = (RA_val_real >> i) & 1;
+    }
 
     // MUX RA_val
     simulateCircuit(cpu->mux_alu_input1);
@@ -242,7 +261,7 @@ void cpuStart(Cpu *cpu)
     {
       printf("load\n");
       memRead(cpu->memory, cpu->RB_val, cpu->mem_inter_data_out);
-      writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
+      // writeRegister(cpu->registers, convertRegisterIndex(cpu->Rdst), cpu->mem_inter_data_out);
     }
     else if (cpu->mem_inter_store[0]) // store
     {
@@ -296,7 +315,7 @@ void cpuStart(Cpu *cpu)
     }
 
     // Write to Rdst
-    simulateCircuit(cpu->register_writer); // BUG: needs to consider storing data_out of the memory interface if it was a load instruction
+    simulateCircuit(cpu->register_writer);
 
     // Write Z flag
     simulateCircuit(cpu->z_flag_writer);
